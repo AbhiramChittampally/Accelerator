@@ -1,0 +1,1 @@
+{"event_id":"EVT-8011","timestamp":"2026-07-03T12:00:00Z","user_id":1008,"page":"checkout","action":"purchase","order":{"total":0.0,"shipping_cost":0.0,"tax":0.0,"items":0},"promo_code":"FREEPASS","discount_amount":0.0}
