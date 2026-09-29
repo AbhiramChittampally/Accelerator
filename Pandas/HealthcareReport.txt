@@ -1,0 +1,9 @@
+National Smart Healthcare Analytics Report
+==================================================
+
+Hospital Revenue Report
+AIIMS Delhi              4037.50
+Apollo Hospital          4500.00
+Fortis Hospital          4600.00
+Gandhi Hospital          7200.00
+Yashoda Hospital         7100.00

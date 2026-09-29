@@ -1,0 +1,165 @@
+             ┌───────────────┐
+             │ Input Dataset │
+             └───────┬───────┘
+                     ↓
+              Forward Pass
+                     ↓
+                Prediction
+                     ↓
+               Loss Function
+                     ↓
+                 Error
+                     ↓
+               Backpropagation
+                     ↓
+                 Gradients
+                     ↓
+              Gradient Descent
+                     ↓
+            Updated Parameters
+                     ↓
+              Next iteration
+
+
+
+🧠 Neural Network Fundamentals
+Neuron
+$$ z=\sum_i x_iw_i+b $$
+
+Then:
+
+$$ a=f(z) $$
+Weight
+
+Controls how strongly an input affects the neuron.
+
+large positive → strong positive influence
+large negative → strong negative influence
+near zero      → weak influence
+Bias
+
+Shifts the neuron's weighted sum.
+
+z = weighted_sum + bias
+Activation
+
+Adds non-linearity.
+
+Without nonlinear activation:
+
+Linear
+ ↓
+Linear
+ ↓
+Linear
+
+can mathematically collapse into a single linear transformation.
+
+With:
+
+Linear
+ ↓
+ReLU
+ ↓
+Linear
+ ↓
+ReLU
+
+the network can learn much richer nonlinear relationships.
+
+ReLU
+$$ ReLU(x)=max(0,x) $$
+-5 → 0
+-1 → 0
+ 0 → 0
+ 2 → 2
+ 5 → 5
+Sigmoid
+$$ \sigma(x)=\frac{1}{1+e^{-x}} $$
+
+Range:
+
+0 → 1
+Tanh
+
+Range:
+
+-1 → +1
+Forward pass
+Input
+ ↓
+Weighted sum
+ ↓
+Activation
+ ↓
+Next layer
+ ↓
+Prediction
+Backpropagation
+Loss
+ ↓
+Backward through network
+ ↓
+Calculate gradients
+Gradient descent
+old parameter
+      ↓
+gradient
+      ↓
+move opposite gradient
+      ↓
+new parameter
+
+Formula:
+
+$$ \theta_{new} = \theta_{old} - \eta\nabla L $$
+Loss
+
+Measures:
+
+How wrong was the prediction?
+
+
+
+
+
+
+
+
+FORWARD
+   ↓
+LOSS
+   ↓
+BACKPROPAGATION
+   ↓
+GRADIENT
+   ↓
+GRADIENT DESCENT
+   ↓
+UPDATED WEIGHTS
+   ↓
+FORWARD AGAIN
+
+
+
+
+
+9. COMPLETE NEURON FORMULA
+
+You should know this extremely well:
+
+$$ \boxed{z=w^Tx+b} $$
+
+Then:
+
+$$ \boxed{a=f(z)} $$
+
+Together:
+
+$$ \boxed{a=f(w^Tx+b)} $$
+
+This is one of the most important equations of Week 5.
+
+The source material explicitly connects neural-network layers to:
+
+activation(W@input+b)

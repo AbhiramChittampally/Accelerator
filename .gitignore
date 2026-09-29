@@ -1,0 +1,30 @@
+# Python virtual environment
+.venv/
+
+# Environment variables
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# VS Code local settings
+.vscode/
+.claude/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.dbgit filter-repo --version
+
+# Large downloaded learning files
+*.exe
+*.html
+
+Machine Learning_DeepLearning\__pycache__
+
+
+Machine Learning_DeepLearning\catboost_info

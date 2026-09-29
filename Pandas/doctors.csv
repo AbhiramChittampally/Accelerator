@@ -1,0 +1,6 @@
+DoctorID,DoctorName,Specialization,HospitalID
+D101,Dr. Ravi,Cardiology,H101
+D102,Dr. Priya,Neurology,H102
+D103,Dr. Rahul,Orthopedics,H103
+D104,Dr. Anu,Pediatrics,H104
+D105,Dr. Kiran,General Medicine,H105

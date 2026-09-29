@@ -1,0 +1,838 @@
+\#Decorators with args → Factory Pattern · @retry(n, delay)
+
+
+
+means that a decorator with arguments behaves like a factory. Let's understand this from the basics.
+
+
+
+
+
+What is a Factory?
+
+\------------------
+
+A factory is something that creates objects or functions based on the input you provide.
+
+
+
+Real-life example:
+
+\------------------
+
+Suppose you order a pizza.
+
+
+
+You tell the shop:
+
+\-----------------
+
+Large Pizza
+
+Extra Cheese
+
+
+
+The pizza shop factory prepares a pizza according to your order.
+
+
+
+
+
+If you order:
+
+\---------------
+
+Medium Pizza
+
+No Cheese
+
+
+
+The same factory prepares a different pizza.
+
+
+
+
+
+\*\*\*\*Input changes → Output changes.\*\*\*\*\*
+
+
+
+
+
+How is a Decorator a Factory?
+
+\-------------------------------
+
+
+
+Consider: @retry(3)
+
+
+
+Python first executes: retry(3)
+
+
+
+
+
+\->This does not decorate the function yet.
+
+
+
+\->Instead, it creates and returns a decorator.
+
+
+
+\->That's why we say retry() is a decorator factory.
+
+
+
+
+
+Visual Flow
+
+\------------
+
+
+
+    retry(3)
+
+       │
+
+       ▼
+
+Creates a decorator
+
+       │
+
+       ▼
+
+Decorator receives the function
+
+       │
+
+       ▼
+
+Returns wrapper
+
+
+
+
+
+So: retry() acts like a factory that manufactures decorators.
+
+
+
+
+
+**Example:**
+
+\---------
+
+
+
+**def retry(times):**
+
+
+
+   **print("Creating Decorator")**
+
+
+
+   **def decorator(func):**
+
+
+
+       **print("Decorating Function")**
+
+
+
+       **def wrapper():**
+
+
+
+           **for i in range(times):**
+
+
+
+               **func()**
+
+
+
+       **return wrapper**
+
+
+
+   **return decorator**
+
+
+
+**When Python sees**
+
+\-----------------
+
+
+
+@retry(3)
+
+def greet():
+
+   print("Hello")
+
+
+
+
+
+**It executes:**
+
+
+
+**Step 1**:retry(3)
+
+
+
+**Output:** Creating Decorator
+
+
+
+This creates a decorator.
+
+
+
+
+
+**Step 2:**Python passes
+
+greet
+
+
+
+to
+
+
+
+decorator(greet)
+
+
+
+**Output:** Decorating Function
+
+
+
+**Step 3:**When you call
+
+
+
+greet()
+
+
+
+Wrapper executes
+
+
+
+Hello
+
+Hello
+
+Hello
+
+
+
+
+
+
+
+
+
+**Why @retry(n, delay)?**
+
+\---------------------
+
+Imagine a website.
+
+
+
+Sometimes the server is busy.
+
+
+
+Try once ❌
+
+
+
+Try again ✅
+
+
+
+Try again ✅
+
+
+
+
+
+**Instead of writing**
+
+\-----------------
+
+login()
+
+
+
+login()
+
+
+
+login()
+
+
+
+
+
+**we write:** @retry(3)
+
+
+
+meaning: Try maximum 3 times
+
+
+
+Sometimes we also want a delay.
+
+
+
+Try Wait 2 seconds
+
+
+
+Try again
+
+
+
+Wait 2 seconds
+
+
+
+Try again
+
+
+
+So we write
+
+
+
+@retry(3,2)
+
+
+
+where
+
+
+
+3 → Number of attempts
+
+
+
+2 → Delay between attempts
+
+
+
+
+
+**Example:**
+
+**----------**
+
+
+
+**import time**
+
+
+
+**def retry(attempts, delay):**
+
+
+
+   **def decorator(func):**
+
+
+
+       **def wrapper():**
+
+
+
+           **for i in range(attempts):**
+
+
+
+               **print(f"Attempt {i+1}")**
+
+
+
+               **func()**
+
+
+
+               **time.sleep(delay)**
+
+
+
+       **return wrapper**
+
+
+
+   **return decorator**
+
+
+
+
+
+**@retry(3,1)**
+
+**def connect():**
+
+   **print("Connecting to Server")**
+
+
+
+**connect()**
+
+
+
+
+
+**Output**
+
+**---------**
+
+
+
+Attempt 1
+
+Connecting to Server
+
+
+
+(wait 1 second)
+
+
+
+Attempt 2
+
+Connecting to Server
+
+
+
+(wait 1 second)
+
+
+
+Attempt 3
+
+Connecting to Server
+
+
+
+
+
+**Why not use a normal decorator?**
+
+**--------------------------------**
+
+
+
+Normal decorator: @retry
+
+
+
+always retries the same number of times.
+
+
+
+Example:
+
+\------------
+
+Always 3 attempts
+
+
+
+But sometimes you need
+
+\-----------------------
+
+Login → 3 attempts
+
+
+
+Payment → 5 attempts
+
+
+
+Database → 10 attempts
+
+
+
+Decorator arguments make this configurable.
+
+
+
+
+
+**Factory Pattern Diagram**
+
+**------------------------**
+
+                 **retry(3,2)**
+
+                      **│**
+
+                      **▼**
+
+            **Creates Decorator**
+
+                      **│**
+
+                      **▼**
+
+          **decorator(function)**
+
+                      **│**
+
+                      **▼**
+
+            **Creates Wrapper**
+
+                      **│**
+
+                      **▼**
+
+                **Executes Function**
+
+
+
+
+
+**Why is it called a Factory Pattern?**
+
+\-------------------------------------
+
+
+
+Because:
+
+
+
+retry(3)
+
+
+
+retry(5)
+
+
+
+retry(10)
+
+
+
+all manufacture different decorators based on the arguments.
+
+
+
+Just like a factory produces different products from different specifications.
+
+
+
+
+
+**Simple Rule to Remember:** Normal Decorator @logger
+
+
+
+One decorator → One fixed behavior.
+
+
+
+
+
+**Decorator Factory (Decorator with Arguments)**
+
+**---------------------------------------------**
+
+@retry(3)
+
+
+
+@retry(5)
+
+
+
+@retry(10)
+
+
+
+One function (retry) creates different decorators depending on the arguments. 
+
+This is why decorators with arguments are often described as implementing the Factory Pattern.
+
+
+
+
+
+
+
+**This is the best example to understand Decorator Factory.**
+
+\---------------------------------------------------------
+
+
+
+Notice that we write only one decorator function (retry), but we use it with different values.
+
+
+
+
+
+**from functools import wraps**
+
+
+
+**# Decorator Factory**
+
+**def retry(times):**
+
+
+
+   **def decorator(func):**
+
+
+
+       **@wraps(func)**
+
+       **def wrapper():**
+
+
+
+           **for i in range(1, times + 1):**
+
+
+
+               **print(f"Attempt {i}")**
+
+
+
+               **func()**
+
+
+
+           **print()**
+
+
+
+       **return wrapper**
+
+
+
+   **return decorator**
+
+
+
+
+
+**@retry(2)**
+
+**def login():**
+
+
+
+   **print("Logging into the system")**
+
+
+
+
+
+**@retry(5)**
+
+**def payment():**
+
+
+
+   **print("Processing Payment")**
+
+
+
+
+
+**@retry(10)**
+
+**def backup():**
+
+
+
+   **print("Taking Database Backup")**
+
+
+
+
+
+**login()**
+
+
+
+**payment()**
+
+
+
+**backup()**
+
+
+
+
+
+**Output**
+
+**----------**
+
+
+
+Attempt 1
+
+Logging into the system
+
+
+
+Attempt 2
+
+Logging into the system
+
+
+
+Attempt 1
+
+Processing Payment
+
+
+
+Attempt 2
+
+Processing Payment
+
+
+
+Attempt 3
+
+Processing Payment
+
+
+
+Attempt 4
+
+Processing Payment
+
+
+
+Attempt 5
+
+Processing Payment
+
+
+
+Attempt 1
+
+Taking Database Backup
+
+
+
+Attempt 2
+
+Taking Database Backup
+
+
+
+Attempt 3
+
+Taking Database Backup
+
+
+
+Attempt 4
+
+Taking Database Backup
+
+
+
+Attempt 5
+
+Taking Database Backup
+
+
+
+Attempt 6
+
+Taking Database Backup
+
+
+
+Attempt 7
+
+Taking Database Backup
+
+
+
+Attempt 8
+
+Taking Database Backup
+
+
+
+Attempt 9
+
+Taking Database Backup
+
+
+
+Attempt 10
+
+Taking Database Backup
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,6 @@
+HospitalID,HospitalName,State,District,HospitalType
+H101,Apollo Hospital,Telangana,Hyderabad,Private
+H102,Gandhi Hospital,Telangana,Hyderabad,Government
+H103,AIIMS Delhi,Delhi,New Delhi,Government
+H104,Fortis Hospital,Karnataka,Bangalore,Private
+H105,Yashoda Hospital,Telangana,Secunderabad,Private
