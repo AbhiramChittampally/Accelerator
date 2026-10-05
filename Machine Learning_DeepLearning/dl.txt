@@ -163,3 +163,250 @@ This is one of the most important equations of Week 5.
 The source material explicitly connects neural-network layers to:
 
 activation(W@input+b)
+
+
+
+
+
+
+
+| Activation | Range | Typical use |
+|---|---|---|
+| ReLU | `0 → ∞` | Hidden layers |
+| Sigmoid | `0 → 1` | Binary probability output |
+| Tanh | `-1 → +1` | Some hidden representations |
+
+
+
+
+
+                 TRAINING
+                    │
+                    ▼
+              ┌───────────┐
+              │   INPUT   │
+              └─────┬─────┘
+                    ↓
+             weights + bias
+                    ↓
+              weighted sum
+                    ↓
+               activation
+                    ↓
+              next layer
+                    ↓
+               prediction
+                    ↓
+             ┌───────────┐
+             │   LOSS    │
+             └─────┬─────┘
+                   ↓
+            BACKPROPAGATION
+                   ↓
+              gradients
+                   ↓
+              optimizer
+                   ↓
+          updated weights/bias
+                   │
+                   └──────────→ repeat
+
+
+
+
+
+
+D2 CHEAT SHEET
+🧠 Core neuron
+\[
+\boxed{z=w^Tx+b}
+\]
+\[
+\boxed{a=f(z)}
+\]
+Therefore:
+\[
+\boxed{a=f(w^Tx+b)}
+\]
+Weight
+Controls input influence.
+positive → pushes output up
+negative → pushes output down
+near zero → weak influence
+
+Bias
+Shifts the weighted sum.
+z = weighted_sum + bias
+
+ReLU
+\[
+\boxed{ReLU(x)=max(0,x)}
+\]
+negative → 0
+positive → unchanged
+
+Sigmoid
+\[
+\boxed{\sigma(x)=\frac{1}{1+e^{-x}}}
+\]
+Range:
+0 → 1
+
+Useful for binary probability outputs.
+Tanh
+Range:
+-1 → +1
+
+Layer
+\[
+\boxed{Z=XW+b}
+\]
+Then:
+\[
+\boxed{A=f(Z)}
+\]
+Matrix shapes
+X = (samples, input_features)
+
+W = (input_features, neurons)
+
+b = (neurons)
+
+Output = (samples, neurons)
+
+Example:
+X = (100, 20)
+W = (20, 5)
+
+X @ W
+   ↓
+(100, 5)
+
+Parameters
+Learned:
+weights
+biases
+
+Hyperparameters
+Chosen:
+learning rate
+epochs
+batch size
+number of layers
+neurons
+
+Gradient descent
+\[
+\boxed{\theta_{new}=\theta_{old}-\eta\nabla L}
+\]
+
+
+
+
+
+
+
+Binary classification → Sigmoid
+Multiclass classification → Softmax
+Regression → Linear output
+
+
+
+
+
+
+38. Forward Pass Cheat Sheet
+Definition
+Forward pass = moving input through the neural network to produce a prediction.
+
+Single layer
+\[
+\boxed{Z=XW+b}
+\]
+Then:
+\[
+\boxed{A=f(Z)}
+\]
+Deep network
+\[
+Z_1=XW_1+b_1
+\]
+\[
+A_1=f(Z_1)
+\]
+\[
+Z_2=A_1W_2+b_2
+\]
+\[
+A_2=f(Z_2)
+\]
+Continue until output.
+Terminology
+X → input
+W → weights
+b → bias
+Z → pre-activation
+A → activation/output
+f → activation function
+
+Classification outputs
+Binary
+Typically:
+Sigmoid
+
+Output:
+0 → 1
+
+Multiclass
+Typically:
+Softmax
+
+Output:
+class probabilities
+
+Regression
+Usually:
+Linear output
+
+
+
+
+
+
+
+                 FORWARD PASS
+
+                    INPUT
+                      │
+                      ▼
+               ┌─────────────┐
+               │   Layer 1   │
+               │ XW₁ + b₁    │
+               └──────┬──────┘
+                      │
+                      ▼
+                    ReLU
+                      │
+                      ▼
+                     A₁
+                      │
+                      ▼
+               ┌─────────────┐
+               │   Layer 2   │
+               │ A₁W₂ + b₂   │
+               └──────┬──────┘
+                      │
+                      ▼
+                    ReLU
+                      │
+                      ▼
+                     A₂
+                      │
+                      ▼
+               ┌─────────────┐
+               │ Output Layer│
+               │ A₂W₃ + b₃   │
+               └──────┬──────┘
+                      │
+                      ▼
+                  PREDICTION

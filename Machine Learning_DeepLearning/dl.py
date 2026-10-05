@@ -153,3 +153,244 @@ b = 0.5
 z = np.dot(w, x) + b
 
 print(z)
+
+
+
+
+
+
+
+import numpy as np
+
+
+def relu(x):
+    return np.maximum(0, x)
+
+
+x = np.array([2.0, 3.0, 4.0])
+
+w = np.array([0.5, 1.0, -0.2])
+
+b = 0.5
+
+z = np.dot(w, x) + b
+
+a = relu(z)
+
+print("Weighted sum:", z)
+print("Activated output:", a)
+
+
+
+
+
+
+
+
+
+import numpy as np
+
+
+# -----------------------------
+# ACTIVATION FUNCTIONS
+# -----------------------------
+
+def relu(x):
+    return np.maximum(0, x)
+
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
+# -----------------------------
+# INPUT
+# -----------------------------
+
+X = np.array([
+    [2.0, 3.0, 4.0],
+    [1.0, 5.0, 2.0]
+])
+
+
+# -----------------------------
+# WEIGHTS
+# -----------------------------
+
+W = np.array([
+    [0.5, 0.2],
+    [1.0, -0.4],
+    [-0.2, 0.7]
+])
+
+
+# -----------------------------
+# BIAS
+# -----------------------------
+
+b = np.array([0.5, -0.1])
+
+
+# -----------------------------
+# LINEAR TRANSFORMATION
+# -----------------------------
+
+Z = X @ W + b
+
+
+# -----------------------------
+# ACTIVATION
+# -----------------------------
+
+A = relu(Z)
+
+
+print("Z:")
+print(Z)
+
+print("Activated output:")
+print(A)
+
+
+
+
+
+import numpy as np
+
+
+def relu(x):
+    return np.maximum(0, x)
+
+
+# Input
+X = np.array([[2.0, 3.0]])
+
+
+# Layer 1 parameters
+W1 = np.array([
+    [0.5, 0.2, 0.1],
+    [0.4, 0.8, 0.3]
+])
+
+b1 = np.array([0.1, 0.2, 0.1])
+
+
+# Layer 2 parameters
+W2 = np.array([
+    [0.3, 0.5],
+    [0.7, 0.2],
+    [0.4, 0.6]
+])
+
+b2 = np.array([0.1, 0.2])
+
+
+# Output layer parameters
+W3 = np.array([
+    [0.5],
+    [0.8]
+])
+
+b3 = np.array([0.1])
+
+
+# Forward pass
+Z1 = X @ W1 + b1
+A1 = relu(Z1)
+
+Z2 = A1 @ W2 + b2
+A2 = relu(Z2)
+
+Z3 = A2 @ W3 + b3
+
+
+print("Layer 1 output:")
+print(A1)
+
+print("Layer 2 output:")
+print(A2)
+
+print("Final output:")
+print(Z3)
+
+
+
+
+
+import numpy as np
+
+
+# -----------------------------
+# ACTIVATION
+# -----------------------------
+
+def relu(x):
+    return np.maximum(0, x)
+
+
+# -----------------------------
+# INPUT
+# -----------------------------
+
+X = np.array([
+    [2.0, 3.0],
+    [4.0, 5.0]
+])
+
+
+# -----------------------------
+# LAYER 1
+# -----------------------------
+
+W1 = np.array([
+    [0.5, 0.2, 0.1],
+    [0.4, 0.8, 0.3]
+])
+
+b1 = np.array([0.1, 0.2, 0.1])
+
+
+# -----------------------------
+# LAYER 2
+# -----------------------------
+
+W2 = np.array([
+    [0.3, 0.5],
+    [0.7, 0.2],
+    [0.4, 0.6]
+])
+
+b2 = np.array([0.1, 0.2])
+
+
+# -----------------------------
+# OUTPUT LAYER
+# -----------------------------
+
+W3 = np.array([
+    [0.5],
+    [0.8]
+])
+
+b3 = np.array([0.1])
+
+
+# -----------------------------
+# FORWARD PASS
+# -----------------------------
+
+Z1 = X @ W1 + b1
+A1 = relu(Z1)
+
+Z2 = A1 @ W2 + b2
+A2 = relu(Z2)
+
+Z3 = A2 @ W3 + b3
+
+
+# -----------------------------
+# OUTPUT
+# -----------------------------
+
+print("Final output:")
+print(Z3)
