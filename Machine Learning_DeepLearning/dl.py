@@ -1,2516 +1,891 @@
-def neuron(inputs, weights, bias):
-    weighted_sum = 0
+"""
+================================================================================
+DEEP LEARNING & MODEL SERVING REFERENCE IMPLEMENTATIONS & CODE COOKBOOK
+================================================================================
+A structured, end-to-end boilerplate and reference guide covering:
+  1. Neuron Foundations from Scratch (Pure Python & NumPy)
+  2. Multi-Layer Perceptron (MLP) Forward Pass & Matrix Transformations
+  3. Loss Functions from Scratch (MSE & Binary Cross-Entropy)
+  4. Backpropagation & Manual Gradient Descent on Logic Gates (AND/OR Gate)
+  5. PyTorch Tensors: Creation, Shapes, Reshaping, Dtypes & GPU Acceleration
+  6. PyTorch Autograd: Computation Graphs, Dynamic Derivatives & Gradients
+  7. PyTorch Neural Network Building Blocks (nn.Module, nn.Linear, nn.Sequential)
+  8. Canonical PyTorch 5-Step Training Loop & Evaluation (model.train / model.eval)
+  9. Custom Datasets & DataLoaders (Batching, Shuffling, Transforms)
+ 10. Model Checkpointing: Saving & Resuming Training (State Dicts)
+ 11. Transfer Learning Suite: Feature Extraction vs. Fine-Tuning (ResNet18)
+ 12. Transfer Learning: Differential Learning Rates across Parameter Groups
+ 13. Model Serving: Production-Ready FastAPI REST Endpoint with Pydantic Validation
+ 14. Model Serialization: TorchScript Compilation (Tracing vs. Scripting)
+ 15. High-Throughput Batch Inference (Vectorized Scoring & Pandas UDF Pattern)
+ 16. Production Deployment: Canary Routing, A/B Testing & Automated Rollback
+================================================================================
+"""
 
-    for x, w in zip(inputs, weights):
-        weighted_sum += x * w
+# ==============================================================================
+# 1. NEURON FOUNDATIONS FROM SCRATCH (PURE PYTHON & NUMPY)
+# ==============================================================================
+print("\n" + "=" * 80)
+print("1. NEURON FOUNDATIONS FROM SCRATCH (PURE PYTHON & NUMPY)")
+print("=" * 80)
 
+import math
+import numpy as np
+
+# ------------------------------------------------------------------------------
+# 1.1 Single Neuron in Pure Python (Pre-Activation Weighted Sum)
+# ------------------------------------------------------------------------------
+def single_neuron_raw(inputs, weights, bias):
+    """
+    Computes raw linear weighted sum z = sum(x_i * w_i) + b.
+    Inputs and weights must have identical length.
+    """
+    if len(inputs) != len(weights):
+        raise ValueError(f"Shape mismatch: {len(inputs)} inputs vs {len(weights)} weights")
+    
+    weighted_sum = sum(x * w for x, w in zip(inputs, weights))
     z = weighted_sum + bias
-
     return z
 
-
-inputs = [1.0, 2.0]
-weights = [0.5, -0.3]
-bias = 0.1
-
-output = neuron(inputs, weights, bias)
-
-print(output)
-
-
-
-
-
-import math
-
-
-def sigmoid(z):
-    return 1 / (1 + math.exp(-z))
-
-
-def neuron(inputs, weights, bias):
-    weighted_sum = 0
-
-    for x, w in zip(inputs, weights):
-        weighted_sum += x * w
-
-    z = weighted_sum + bias
-    activation = sigmoid(z)
-
-    return z, activation
-
-
-inputs = [1.0, 2.0]
-weights = [0.5, -0.3]
-bias = 0.1
-
-z, output = neuron(inputs, weights, bias)
-
-print("Weighted sum:", z)
-print("Activated output:", output)
-
-
-
-
-
-
-def relu(x):
-    return max(0, x)
-
-
-x1 = 1.0
-x2 = 2.0
-
-w1 = 0.5
-w2 = -0.3
-hidden_bias = 0.1
-
-hidden_z = x1 * w1 + x2 * w2 + hidden_bias
-hidden_output = relu(hidden_z)
-
-output_weight = 0.8
-output_bias = -0.2
-
-output_z = hidden_output * output_weight + output_bias
-prediction = relu(output_z)
-
-print("Hidden z:", hidden_z)
-print("Hidden activation:", hidden_output)
-print("Output z:", output_z)
-print("Prediction:", prediction)
-
-
-
-
-
-
-
-import math
-
-
-def relu(x):
-    return max(0, x)
-
-
-def sigmoid(x):
-    return 1 / (1 + math.exp(-x))
-
-
-def neuron(inputs, weights, bias, activation):
-    weighted_sum = 0
-
-    for x, w in zip(inputs, weights):
-        weighted_sum += x * w
-
-    z = weighted_sum + bias
-
-    return activation(z)
-
-
-def forward_pass(inputs):
-    hidden_weights = [0.5, -0.3]
-    hidden_bias = 0.1
-
-    hidden_output = neuron(
-        inputs,
-        hidden_weights,
-        hidden_bias,
-        relu
-    )
-
-    output_weight = 0.8
-    output_bias = -0.2
-
-    output_z = (
-        hidden_output * output_weight
-        + output_bias
-    )
-
-    output = sigmoid(output_z)
-
-    return output
-
-
-inputs = [1.0, 2.0]
-
-prediction = forward_pass(inputs)
-
-print("Prediction:", prediction)
-
-
-
-
-
-
-import numpy as np
-
-x = np.array([2.0, 3.0, 4.0])
-
-w = np.array([0.5, 1.0, -0.2])
-
-b = 0.5
-
-z = np.dot(w, x) + b
-
-print(z)
-
-
-
-
-
-
-
-import numpy as np
-
-
-def relu(x):
-    return np.maximum(0, x)
-
-
-x = np.array([2.0, 3.0, 4.0])
-
-w = np.array([0.5, 1.0, -0.2])
-
-b = 0.5
-
-z = np.dot(w, x) + b
-
-a = relu(z)
-
-print("Weighted sum:", z)
-print("Activated output:", a)
-
-
-
-
-
-
-
-
-
-import numpy as np
-
-
-# -----------------------------
-# ACTIVATION FUNCTIONS
-# -----------------------------
-
-def relu(x):
-    return np.maximum(0, x)
-
-
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-
-# -----------------------------
-# INPUT
-# -----------------------------
-
-X = np.array([
+sample_inputs = [1.0, 2.0]
+sample_weights = [0.5, -0.3]
+sample_bias = 0.1
+
+z_raw = single_neuron_raw(sample_inputs, sample_weights, sample_bias)
+print(f"Single Neuron Raw Weighted Sum z: {z_raw:.4f}")  # Expect 0.0
+
+
+# ------------------------------------------------------------------------------
+# 1.2 Single Neuron with Non-Linear Activations (Sigmoid & ReLU)
+# ------------------------------------------------------------------------------
+def sigmoid_scalar(z):
+    """Sigmoid activation: squashes any real value into probability range (0, 1)."""
+    return 1.0 / (1.0 + math.exp(-z))
+
+def relu_scalar(z):
+    """ReLU activation: returns z if positive, else returns 0."""
+    return max(0.0, z)
+
+def single_neuron_activated(inputs, weights, bias, activation_fn=relu_scalar):
+    """Computes weighted sum and applies non-linear activation a = f(z)."""
+    z = single_neuron_raw(inputs, weights, bias)
+    a = activation_fn(z)
+    return z, a
+
+z_val, a_sigmoid = single_neuron_activated(sample_inputs, sample_weights, sample_bias, sigmoid_scalar)
+_, a_relu = single_neuron_activated(sample_inputs, sample_weights, sample_bias, relu_scalar)
+
+print(f"Neuron with Sigmoid Output a: {a_sigmoid:.4f}")
+print(f"Neuron with ReLU Output a:    {a_relu:.4f}")
+
+
+# ------------------------------------------------------------------------------
+# 1.3 Vectorized Single Neuron in NumPy
+# ------------------------------------------------------------------------------
+def numpy_neuron(x, w, b, activation="relu"):
+    """
+    Vectorized neuron computation: z = w^T * x + b using numpy dot product.
+    """
+    z = np.dot(w, x) + b
+    if activation == "relu":
+        a = np.maximum(0, z)
+    elif activation == "sigmoid":
+        a = 1.0 / (1.0 + np.exp(-z))
+    else:
+        a = z
+    return z, a
+
+x_vec = np.array([2.0, 3.0, 4.0])
+w_vec = np.array([0.5, 1.0, -0.2])
+b_val = 0.5
+
+z_np, a_np = numpy_neuron(x_vec, w_vec, b_val, activation="relu")
+print(f"NumPy Vectorized Neuron -> z: {z_np:.4f}, activated: {a_np:.4f}")
+
+
+# ==============================================================================
+# 2. MULTI-LAYER PERCEPTRON (MLP) FORWARD PASS & MATRIX TRANSFORMATIONS
+# ==============================================================================
+print("\n" + "=" * 80)
+print("2. MULTI-LAYER PERCEPTRON (MLP) FORWARD PASS & MATRIX TRANSFORMATIONS")
+print("=" * 80)
+
+# ------------------------------------------------------------------------------
+# 2.1 Layer-Level Matrix Transformation: Z = X @ W + b
+# ------------------------------------------------------------------------------
+# Batch of 2 samples, each with 3 input features
+X_batch = np.array([
     [2.0, 3.0, 4.0],
     [1.0, 5.0, 2.0]
-])
+])  # Shape: (2, 3)
 
-
-# -----------------------------
-# WEIGHTS
-# -----------------------------
-
-W = np.array([
+# Weight matrix for a layer with 2 neurons (each takes 3 inputs)
+W_layer1 = np.array([
     [0.5, 0.2],
     [1.0, -0.4],
     [-0.2, 0.7]
-])
-
-
-# -----------------------------
-# BIAS
-# -----------------------------
-
-b = np.array([0.5, -0.1])
-
-
-# -----------------------------
-# LINEAR TRANSFORMATION
-# -----------------------------
-
-Z = X @ W + b
-
-
-# -----------------------------
-# ACTIVATION
-# -----------------------------
-
-A = relu(Z)
-
-
-print("Z:")
-print(Z)
-
-print("Activated output:")
-print(A)
-
-
-
-
-
-import numpy as np
-
-
-def relu(x):
-    return np.maximum(0, x)
-
-
-# Input
-X = np.array([[2.0, 3.0]])
-
-
-# Layer 1 parameters
-W1 = np.array([
-    [0.5, 0.2, 0.1],
-    [0.4, 0.8, 0.3]
-])
-
-b1 = np.array([0.1, 0.2, 0.1])
-
-
-# Layer 2 parameters
-W2 = np.array([
-    [0.3, 0.5],
-    [0.7, 0.2],
-    [0.4, 0.6]
-])
-
-b2 = np.array([0.1, 0.2])
-
-
-# Output layer parameters
-W3 = np.array([
-    [0.5],
-    [0.8]
-])
-
-b3 = np.array([0.1])
-
-
-# Forward pass
-Z1 = X @ W1 + b1
-A1 = relu(Z1)
-
-Z2 = A1 @ W2 + b2
-A2 = relu(Z2)
-
-Z3 = A2 @ W3 + b3
-
-
-print("Layer 1 output:")
-print(A1)
-
-print("Layer 2 output:")
-print(A2)
-
-print("Final output:")
-print(Z3)
-
-
-
-
-
-import numpy as np
-
-
-# -----------------------------
-# ACTIVATION
-# -----------------------------
-
-def relu(x):
-    return np.maximum(0, x)
-
-
-# -----------------------------
-# INPUT
-# -----------------------------
-
-X = np.array([
-    [2.0, 3.0],
-    [4.0, 5.0]
-])
-
-
-# -----------------------------
-# LAYER 1
-# -----------------------------
-
-W1 = np.array([
-    [0.5, 0.2, 0.1],
-    [0.4, 0.8, 0.3]
-])
-
-b1 = np.array([0.1, 0.2, 0.1])
-
-
-# -----------------------------
-# LAYER 2
-# -----------------------------
-
-W2 = np.array([
-    [0.3, 0.5],
-    [0.7, 0.2],
-    [0.4, 0.6]
-])
-
-b2 = np.array([0.1, 0.2])
-
-
-# -----------------------------
-# OUTPUT LAYER
-# -----------------------------
-
-W3 = np.array([
-    [0.5],
-    [0.8]
-])
-
-b3 = np.array([0.1])
-
-
-# -----------------------------
-# FORWARD PASS
-# -----------------------------
-
-Z1 = X @ W1 + b1
-A1 = relu(Z1)
-
-Z2 = A1 @ W2 + b2
-A2 = relu(Z2)
-
-Z3 = A2 @ W3 + b3
-
-
-# -----------------------------
-# OUTPUT
-# -----------------------------
-
-print("Final output:")
-print(Z3)
-
-
-
-
-
-def gradient_descent_step(weight, gradient, learning_rate):
-    return weight - (learning_rate * gradient)
-
-
-
-
-
-
-
-
-def gradient_descent_step(weight, gradient, learning_rate):
-    return weight - learning_rate * gradient
-
-
-weight = 0.0
-learning_rate = 0.1
-
-for step in range(10):
-
-    gradient = weight - 2.0
-
-    weight = gradient_descent_step(
-        weight,
-        gradient,
-        learning_rate
-    )
-
-    print(
-        f"Step {step}: "
-        f"Gradient = {gradient:.4f}, "
-        f"Weight = {weight:.4f}"
-    )
-    
-    
-    
-    
-    
-
-
-
-
-
-
-
-import torch
-
-x = torch.tensor(2.0, requires_grad=True)
-
-y = x ** 2
-
-y.backward()
-
-print("Value of x:", x.item())
-print("Value of y:", y.item())
-print("Gradient:", x.grad.item())
-
-
-
-
-
-
-
-
-
-for epoch in range(epochs):
-
-    optimizer.zero_grad()
-
-    predictions = model(inputs)
-
-    loss = loss_function(
-        predictions,
-        targets
-    )
-
-    loss.backward()
-
-    optimizer.step()
-
-    print(
-        f"Epoch {epoch}: "
-        f"Loss = {loss.item():.4f}"
-    )
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-def mse_loss(y_true, y_pred):
-
+])  # Shape: (3, 2)
+
+# Bias vector for 2 neurons
+b_layer1 = np.array([0.5, -0.1])  # Shape: (2,)
+
+# Forward linear transformation
+Z_layer1 = X_batch @ W_layer1 + b_layer1  # Shape: (2, 2)
+A_layer1 = np.maximum(0, Z_layer1)         # Apply ReLU activation
+
+print("Layer 1 Pre-activation Matrix Z (Shape 2x2):")
+print(Z_layer1)
+print("Layer 1 Activated Output Matrix A (Shape 2x2):")
+print(A_layer1)
+
+
+# ------------------------------------------------------------------------------
+# 2.2 Deep Multi-Layer Feedforward Network (Hand-Traced Forward Pass)
+# ------------------------------------------------------------------------------
+class SimpleNumPyMLP:
+    """
+    3-Layer Multi-Layer Perceptron implemented completely in NumPy:
+    Architecture: Input(2) -> Hidden1(3) -> Hidden2(2) -> Output(1)
+    """
+    def __init__(self):
+        # Layer 1: 2 inputs -> 3 hidden neurons
+        self.W1 = np.array([[0.5, 0.2, 0.1], [0.4, 0.8, 0.3]])
+        self.b1 = np.array([0.1, 0.2, 0.1])
+
+        # Layer 2: 3 inputs -> 2 hidden neurons
+        self.W2 = np.array([[0.3, 0.5], [0.7, 0.2], [0.4, 0.6]])
+        self.b2 = np.array([0.1, 0.2])
+
+        # Output Layer: 2 inputs -> 1 output neuron
+        self.W3 = np.array([[0.5], [0.8]])
+        self.b3 = np.array([0.1])
+
+    def forward(self, X):
+        # Layer 1
+        self.Z1 = X @ self.W1 + self.b1
+        self.A1 = np.maximum(0, self.Z1)  # ReLU
+
+        # Layer 2
+        self.Z2 = self.A1 @ self.W2 + self.b2
+        self.A2 = np.maximum(0, self.Z2)  # ReLU
+
+        # Output Layer (Regression: linear output)
+        self.Z3 = self.A2 @ self.W3 + self.b3
+        self.output = self.Z3
+        return self.output
+
+mlp = SimpleNumPyMLP()
+sample_input = np.array([[2.0, 3.0]])
+prediction_mlp = mlp.forward(sample_input)
+print(f"NumPy 3-Layer MLP Prediction for input [2.0, 3.0]: {prediction_mlp[0, 0]:.4f}")
+
+
+# ==============================================================================
+# 3. LOSS FUNCTIONS FROM SCRATCH (MSE & BINARY CROSS-ENTROPY)
+# ==============================================================================
+print("\n" + "=" * 80)
+print("3. LOSS FUNCTIONS FROM SCRATCH (MSE & BINARY CROSS-ENTROPY)")
+print("=" * 80)
+
+# ------------------------------------------------------------------------------
+# 3.1 Mean Squared Error (MSE) for Regression
+# ------------------------------------------------------------------------------
+def compute_mse_loss(y_true, y_pred):
+    """Computes MSE: (1/n) * sum((y_true - y_pred)^2)."""
     n = len(y_true)
-
-    total = sum(
-        (yt - yp) ** 2
-        for yt, yp in zip(y_true, y_pred)
-    )
-
-    return total / n
-
-
-
-
-   
-
-
-
-
-
-def mse_loss(y_true, y_pred):
-    n = len(y_true)
-
-    total = sum(
-        (yt - yp) ** 2
-        for yt, yp in zip(y_true, y_pred)
-    )
-
-    return total / n
-
-
-true_prices = [50, 65, 40]
-predicted_prices = [48, 70, 44]
-
-loss = mse_loss(true_prices, predicted_prices)
-
-print("MSE:", loss)
-
-
-
-
-
-import math
-
-def binary_cross_entropy_loss(y_true, y_pred_prob):
-
-    epsilon = 1e-9
-
-    y_pred_prob = min(
-        max(y_pred_prob, epsilon),
-        1 - epsilon
-    )
-
-    return -(
-        y_true * math.log(y_pred_prob)
-        + (1 - y_true) * math.log(1 - y_pred_prob)
-    )
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-
-
-
-import math
-
-
-def binary_cross_entropy_loss(y_true, y_pred_prob):
-
-    epsilon = 1e-9
-
-    y_pred_prob = min(
-        max(y_pred_prob, epsilon),
-        1 - epsilon
-    )
-
-    return -(
-        y_true * math.log(y_pred_prob)
-        + (1 - y_true) * math.log(1 - y_pred_prob)
-    )
-
-
-loss_correct = binary_cross_entropy_loss(
-    y_true=1,
-    y_pred_prob=0.9
-)
-
-loss_wrong = binary_cross_entropy_loss(
-    y_true=1,
-    y_pred_prob=0.1
-)
-
-print("Correct prediction loss:", loss_correct)
-print("Wrong prediction loss:", loss_wrong)
-
-
-
-
-
-
-
-import torch
-import torch.nn as nn
-
-loss_function = nn.MSELoss()
-
-actual = torch.tensor([10.0, 20.0, 30.0])
-predicted = torch.tensor([12.0, 18.0, 29.0])
-
-loss = loss_function(predicted, actual)
-
-print(loss)
-
-
-
-
-
-import torch
-import torch.nn as nn
-
-loss_function = nn.CrossEntropyLoss()
-
-predictions = torch.tensor([
-    [2.0, 1.0, 0.1],
-    [0.1, 2.5, 0.3]
-])
-
-actual = torch.tensor([0, 1])
-
-loss = loss_function(predictions, actual)
-
-print(loss)
-
-
-
-
-
-
-
-
-import torch
-import torch.nn as nn
-
-model = nn.Linear(1, 1)
-
-loss_function = nn.MSELoss()
-
-optimizer = torch.optim.SGD(
-    model.parameters(),
-    lr=0.01
-)
-
-x = torch.tensor([[1.0], [2.0], [3.0]])
-y = torch.tensor([[2.0], [4.0], [6.0]])
-
-for epoch in range(100):
-
-    predictions = model(x)
-
-    loss = loss_function(predictions, y)
-
-    optimizer.zero_grad()
-
-    loss.backward()
-
-    optimizer.step()
-
-print("Final Loss:", loss.item())
-
-
-
-
-
-
-
-
-
-# Regression
-import torchimport torch.nn as nnmodel = nn.Linear(1, 1)loss_function = nn.MSELoss()predictions = model(inputs)loss = loss_function(predictions, targets)
-
-
-# Binary classification
-import torchimport torch.nn as nnloss_function = nn.BCEWithLogitsLoss()logits = model(inputs)loss = loss_function(logits, targets)
-
-
-
-# Multi-class classification
-import torchimport torch.nn as nnloss_function = nn.CrossEntropyLoss()logits = model(inputs)loss = loss_function(logits, targets)
-
-
-
-
-
-
-
-
-
-
-
-import torch
-
-# Create input data
-inputs = torch.tensor([
-    [1.0, 2.0, 3.0, 4.0],
-    [5.0, 6.0, 7.0, 8.0]
-])
-
-# Create weights
-weights = torch.rand(4, 3)
-
-# Create bias
-bias = torch.rand(3)
-
-# Calculate weighted sums
-z = inputs @ weights + bias
-
-print("Input shape:", inputs.shape)
-print("Weight shape:", weights.shape)
-print("Bias shape:", bias.shape)
-print("Output shape:", z.shape)
-
-
-
-
-
-
-
-
-
-
-import torch
-
-# ==============================
-# 1. DEVICE
-# ==============================
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
-print("Device:", device)
-
-
-# ==============================
-# 2. CREATE TENSORS
-# ==============================
-
-scalar = torch.tensor(7.0)
-
-vector = torch.tensor([1.0, 2.0, 3.0])
-
-matrix = torch.tensor([
-    [1.0, 2.0],
-    [3.0, 4.0]
-])
-
-
-# ==============================
-# 3. CHECK TENSOR INFORMATION
-# ==============================
-
-print("Scalar:", scalar)
-print("Scalar shape:", scalar.shape)
-print("Scalar dtype:", scalar.dtype)
-
-print("Vector:", vector)
-print("Vector shape:", vector.shape)
-print("Vector dtype:", vector.dtype)
-
-print("Matrix:", matrix)
-print("Matrix shape:", matrix.shape)
-print("Matrix dtype:", matrix.dtype)
-
-
-# ==============================
-# 4. CREATE COMMON TENSORS
-# ==============================
-
-zeros = torch.zeros(2, 3)
-
-ones = torch.ones(2, 3)
-
-random_tensor = torch.rand(2, 3)
-
-sequence = torch.arange(0, 10)
-
-
-# ==============================
-# 5. RESHAPING
-# ==============================
-
-reshaped = ones.reshape(3, 2)
-
-print("Original shape:", ones.shape)
-print("Reshaped shape:", reshaped.shape)
-
-
-# ==============================
-# 6. ELEMENT-WISE OPERATIONS
-# ==============================
-
-a = torch.tensor([
-    [1.0, 2.0],
-    [3.0, 4.0]
-])
-
-b = torch.tensor([
-    [5.0, 6.0],
-    [7.0, 8.0]
-])
-
-addition = a + b
-
-elementwise_multiplication = a * b
-
-
-# ==============================
-# 7. MATRIX MULTIPLICATION
-# ==============================
-
-matrix_multiplication = a @ b
-
-print("Matrix multiplication:")
-print(matrix_multiplication)
-
-print("Result shape:", matrix_multiplication.shape)
-
-
-# ==============================
-# 8. MOVE TENSOR TO DEVICE
-# ==============================
-
-matrix_on_device = matrix.to(device)
-
-print("Matrix device:", matrix_on_device.device)
-
-
-# ==============================
-# 9. NEURAL NETWORK LAYER MATH
-# ==============================
-
-inputs = torch.rand(32, 4)
-
-weights = torch.rand(4, 6)
-
-bias = torch.rand(6)
-
-z = inputs @ weights + bias
-
-print("Inputs shape:", inputs.shape)
-print("Weights shape:", weights.shape)
-print("Bias shape:", bias.shape)
-print("Output shape:", z.shape)
-
-
-
-import torch
-
-x1 = torch.tensor(1.0)
-x2 = torch.tensor(2.0)
-
-w1 = torch.tensor(0.5, requires_grad=True)
-w2 = torch.tensor(-0.3, requires_grad=True)
-bias = torch.tensor(0.1, requires_grad=True)
-
-z = (x1 * w1) + (x2 * w2) + bias
-
-print("Forward result:", z.item())
-
-z.backward()
-
-print("Gradient of w1:", w1.grad.item())
-print("Gradient of w2:", w2.grad.item())
-print("Gradient of bias:", bias.grad.item())
-
-
-
-
-
-
-
-
-import torch
-
-# Parameters
-w1 = torch.tensor(0.5, requires_grad=True)
-w2 = torch.tensor(-0.3, requires_grad=True)
-bias = torch.tensor(0.1, requires_grad=True)
-
-# Inputs
-x1 = torch.tensor(1.0)
-x2 = torch.tensor(2.0)
-
-# Forward pass
-z = (x1 * w1) + (x2 * w2) + bias
-
-# Backpropagation
-z.backward()
-
-# Gradients
-print("w1 gradient:", w1.grad)
-print("w2 gradient:", w2.grad)
-print("bias gradient:", bias.grad)
-
-
-
-
-
-
-
-
-optimizer.zero_grad()
-
-predictions = model(inputs)
-
-loss = loss_function(predictions, targets)
-
-loss.backward()
-
-optimizer.step()
-
-
-
-
-
-
-
-
-
-import torch
-import torch.nn as nn
-
-class TinyModel(nn.Module):
-
-    def __init__(self):
-        super().__init__()
-
-        self.hidden = nn.Linear(2, 4)
-        self.output = nn.Linear(4, 1)
-
-        self.relu = nn.ReLU()
-
-    def forward(self, x):
-        x = self.hidden(x)
-        x = self.relu(x)
-        x = self.output(x)
-
-        return x
-    
-    
-    
-    
-for epoch in range(200):
-
-    optimizer.zero_grad()
-
-    predictions = model(inputs)
-
-    loss = loss_function(predictions, targets)
-
-    loss.backward()
-
-    optimizer.step()
-    
-    
-    
-
-
-
-
-
-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-
-
-class TinyModel(nn.Module):
-
-    def __init__(self):
-        super().__init__()
-
-        self.hidden = nn.Linear(2, 4)
-        self.output = nn.Linear(4, 1)
-
-        self.relu = nn.ReLU()
-
-    def forward(self, x):
-        x = self.hidden(x)
-        x = self.relu(x)
-        x = self.output(x)
-
-        return x
-
-
-inputs = torch.tensor([
-    [0., 0.],
-    [0., 1.],
-    [1., 0.],
-    [1., 1.]
-])
-
-targets = torch.tensor([
-    [0.],
-    [0.],
-    [0.],
-    [1.]
-])
-
-
-model = TinyModel()
-
-loss_function = nn.BCEWithLogitsLoss()
-
-optimizer = optim.SGD(
-    model.parameters(),
-    lr=0.1
-)
-
-
-for epoch in range(200):
-
-    optimizer.zero_grad()
-
-    predictions = model(inputs)
-
-    loss = loss_function(
-        predictions,
-        targets
-    )
-
-    loss.backward()
-
-    optimizer.step()
-
-    if epoch % 50 == 0:
-        print(
-            f"Epoch {epoch}, "
-            f"Loss: {loss.item():.4f}"
-        )
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-import torch
-import torch.nn as nn
-import torch.optim as optim
-
-
-class MyModel(nn.Module):
-
-    def __init__(self, input_features, hidden_features, output_features):
-        super().__init__()
-
-        self.layer1 = nn.Linear(
-            input_features,
-            hidden_features
-        )
-
-        self.relu = nn.ReLU()
-
-        self.layer2 = nn.Linear(
-            hidden_features,
-            output_features
-        )
-
-    def forward(self, x):
-
-        x = self.layer1(x)
-
-        x = self.relu(x)
-
-        x = self.layer2(x)
-
-        return x
-
-
-inputs = torch.tensor([
-    [0., 0.],
-    [0., 1.],
-    [1., 0.],
-    [1., 1.]
-])
-
-targets = torch.tensor([
-    [0.],
-    [0.],
-    [0.],
-    [1.]
-])
-
-
-model = MyModel(
-    input_features=2,
-    hidden_features=4,
-    output_features=1
-)
-
-
-loss_function = nn.BCEWithLogitsLoss()
-
-
-optimizer = optim.SGD(
-    model.parameters(),
-    lr=0.1
-)
-
-
-epochs = 200
-
-model.train()
-
-for epoch in range(epochs):
-
-    optimizer.zero_grad()
-
-    predictions = model(inputs)
-
-    loss = loss_function(
-        predictions,
-        targets
-    )
-
-    loss.backward()
-
-    optimizer.step()
-
-    if epoch % 50 == 0:
-        print(
-            f"Epoch {epoch}: "
-            f"Loss = {loss.item():.4f}"
-        )
-
-
-model.eval()
-
-with torch.no_grad():
-
-    predictions = model(inputs)
-
-    probabilities = torch.sigmoid(predictions)
-
-    print("\nPredictions:")
-
-    print(probabilities)
-    
-    
-    
-    
-    
-    
-    
-    
-import torch
-from torch.utils.data import Dataset
-
-
-class AndGateDataset(Dataset):
-
-    def __init__(self):
-
-        self.inputs = torch.tensor([
-            [0., 0.],
-            [0., 1.],
-            [1., 0.],
-            [1., 1.]
-        ])
-
-        self.targets = torch.tensor([
-            [0.],
-            [0.],
-            [0.],
-            [1.]
-        ])
-
-    def __len__(self):
-        return len(self.inputs)
-
-    def __getitem__(self, index):
-        return self.inputs[index], self.targets[index]
-    
-    
-    
-    
-    
-    
-    
-def __getitem__(self, index):
-
-    image_path = self.paths[index]
-
-    image = load_image(image_path)
-
-    image = resize(image)
-
-    image = normalize(image)
-
-    label = self.labels[index]
-
-    return image, label
-
-
-
-
-
-
-
-
-
-
-import torch
-from torch.utils.data import Dataset, DataLoader
-
-
-class AndGateDataset(Dataset):
-
-    def __init__(self):
-
-        self.inputs = torch.tensor([
-            [0., 0.],
-            [0., 1.],
-            [1., 0.],
-            [1., 1.]
-        ])
-
-        self.targets = torch.tensor([
-            [0.],
-            [0.],
-            [0.],
-            [1.]
-        ])
-
-    def __len__(self):
-        return len(self.inputs)
-
-    def __getitem__(self, index):
-        return self.inputs[index], self.targets[index]
-
-
-dataset = AndGateDataset()
-
-loader = DataLoader(
-    dataset,
-    batch_size=2,
-    shuffle=True
-)
-
-
-for batch_index, (batch_inputs, batch_targets) in enumerate(loader):
-
-    print("Batch:", batch_index)
-
-    print("Inputs:")
-    print(batch_inputs)
-
-    print("Targets:")
-    print(batch_targets)
-
-    print("Input shape:", batch_inputs.shape)
-    print("Target shape:", batch_targets.shape)
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
-
-
-class AndGateDataset(Dataset):
-
-    def __init__(self):
-
-        self.inputs = torch.tensor([
-            [0., 0.],
-            [0., 1.],
-            [1., 0.],
-            [1., 1.]
-        ])
-
-        self.targets = torch.tensor([
-            [0.],
-            [0.],
-            [0.],
-            [1.]
-        ])
-
-    def __len__(self):
-        return len(self.inputs)
-
-    def __getitem__(self, index):
-        return self.inputs[index], self.targets[index]
-
-
-class TinyModel(nn.Module):
-
-    def __init__(self):
-        super().__init__()
-
-        self.hidden = nn.Linear(2, 4)
-        self.relu = nn.ReLU()
-        self.output = nn.Linear(4, 1)
-
-    def forward(self, x):
-
-        x = self.hidden(x)
-
-        x = self.relu(x)
-
-        x = self.output(x)
-
-        return x
-
-
-dataset = AndGateDataset()
-
-loader = DataLoader(
-    dataset,
-    batch_size=2,
-    shuffle=True
-)
-
-
-model = TinyModel()
-
-loss_function = nn.BCEWithLogitsLoss()
-
-optimizer = optim.SGD(
-    model.parameters(),
-    lr=0.5
-)
-
-
-epochs = 300
-
-model.train()
-
-for epoch in range(epochs):
-
-    epoch_loss = 0.0
-
-    for batch_inputs, batch_targets in loader:
-
-        optimizer.zero_grad()
-
-        predictions = model(batch_inputs)
-
-        loss = loss_function(
-            predictions,
-            batch_targets
-        )
-
-        loss.backward()
-
-        optimizer.step()
-
-        epoch_loss += loss.item()
-
-    if epoch % 100 == 0 or epoch == epochs - 1:
-
-        print(
-            f"Epoch {epoch}: "
-            f"Loss = {epoch_loss:.4f}"
-        )
-        
-        
-        
-        
-        
-    
-    
-    
-    
-    
-    
-import torch
-from torch.utils.data import Dataset, DataLoader
-
-
-class MyDataset(Dataset):
-
-    def __init__(self, inputs, targets):
-
-        self.inputs = inputs
-        self.targets = targets
-
-    def __len__(self):
-
-        return len(self.inputs)
-
-    def __getitem__(self, index):
-
-        return (
-            self.inputs[index],
-            self.targets[index]
-        )
-
-
-inputs = torch.tensor([
-    [0., 0.],
-    [0., 1.],
-    [1., 0.],
-    [1., 1.]
-])
-
-targets = torch.tensor([
-    [0.],
-    [0.],
-    [0.],
-    [1.]
-])
-
-
-dataset = MyDataset(
-    inputs,
-    targets
-)
-
-
-loader = DataLoader(
-    dataset,
-    batch_size=2,
-    shuffle=True
-)
-
-
-for batch_inputs, batch_targets in loader:
-
-    print("Input shape:", batch_inputs.shape)
-
-    print("Target shape:", batch_targets.shape)
-    
-    
-    
-    
-    
-    
-
-
-
-
-
-
-
-import torch
-import torch.nn as nn
-
-
-class TinyModel(nn.Module):
-
-    def __init__(self):
-        super().__init__()
-
-        self.hidden = nn.Linear(2, 4)
-        self.output = nn.Linear(4, 1)
-        self.relu = nn.ReLU()
-
-    def forward(self, x):
-
-        x = self.hidden(x)
-
-        x = self.relu(x)
-
-        x = self.output(x)
-
-        return x
-
-
-model = TinyModel()
-
-torch.save(
-    model.state_dict(),
-    "tiny_model.pth"
-)
-
-print("Model saved.")
-
-
-loaded_model = TinyModel()
-
-saved_state = torch.load(
-    "tiny_model.pth"
-)
-
-loaded_model.load_state_dict(
-    saved_state
-)
-
-loaded_model.eval()
-
-print("Model loaded.")
-
-
-
-
-
-
-
-
-
-
-
-loaded_model = TinyModel()
-
-loaded_optimizer = optim.SGD(
-    loaded_model.parameters(),
-    lr=0.1
-)
-
-loaded_checkpoint = torch.load(
-    "tiny_model_checkpoint.pt"
-)
-
-loaded_model.load_state_dict(
-    loaded_checkpoint["model_state_dict"]
-)
-
-loaded_optimizer.load_state_dict(
-    loaded_checkpoint["optimizer_state_dict"]
-)
-
-resumed_epoch = loaded_checkpoint["epoch"]
-
-print("Resumed from epoch:", resumed_epoch)
-
-
-
-
-
-
-
-
-
-
-
-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
-
-
-class AndGateDataset(Dataset):
-
-    def __init__(self):
-
-        self.inputs = torch.tensor([
-            [0., 0.],
-            [0., 1.],
-            [1., 0.],
-            [1., 1.]
-        ])
-
-        self.targets = torch.tensor([
-            [0.],
-            [0.],
-            [0.],
-            [1.]
-        ])
-
-    def __len__(self):
-
-        return len(self.inputs)
-
-    def __getitem__(self, index):
-
-        return (
-            self.inputs[index],
-            self.targets[index]
-        )
-
-
-class TinyModel(nn.Module):
-
-    def __init__(self):
-
-        super().__init__()
-
-        self.hidden = nn.Linear(2, 4)
-
-        self.relu = nn.ReLU()
-
-        self.output = nn.Linear(4, 1)
-
-    def forward(self, x):
-
-        x = self.hidden(x)
-
-        x = self.relu(x)
-
-        x = self.output(x)
-
-        return x
-
-
-dataset = AndGateDataset()
-
-loader = DataLoader(
-    dataset,
-    batch_size=2,
-    shuffle=True
-)
-
-
-model = TinyModel()
-
-loss_function = nn.BCEWithLogitsLoss()
-
-optimizer = optim.SGD(
-    model.parameters(),
-    lr=0.5
-)
-
-
-epochs = 300
-
-
-model.train()
-
-for epoch in range(epochs):
-
-    epoch_loss = 0.0
-
-    for batch_inputs, batch_targets in loader:
-
-        optimizer.zero_grad()
-
-        predictions = model(batch_inputs)
-
-        loss = loss_function(
-            predictions,
-            batch_targets
-        )
-
-        loss.backward()
-
-        optimizer.step()
-
-        epoch_loss += loss.item()
-
-    if epoch % 100 == 0 or epoch == epochs - 1:
-
-        print(
-            f"Epoch {epoch}: "
-            f"Loss = {epoch_loss:.4f}"
-        )
-
-
-checkpoint = {
-    "epoch": epochs,
-    "model_state_dict": model.state_dict(),
-    "optimizer_state_dict": optimizer.state_dict()
-}
-
-
-torch.save(
-    checkpoint,
-    "and_gate_checkpoint.pt"
-)
-
-print("Checkpoint saved.")
-
-
-loaded_model = TinyModel()
-
-loaded_optimizer = optim.SGD(
-    loaded_model.parameters(),
-    lr=0.5
-)
-
-
-loaded_checkpoint = torch.load(
-    "and_gate_checkpoint.pt"
-)
-
-
-loaded_model.load_state_dict(
-    loaded_checkpoint["model_state_dict"]
-)
-
-loaded_optimizer.load_state_dict(
-    loaded_checkpoint["optimizer_state_dict"]
-)
-
-
-loaded_model.eval()
-
-sample_input = torch.tensor([
-    [1., 1.]
-])
-
-
-with torch.no_grad():
-
-    prediction = loaded_model(
-        sample_input
-    )
-
-    probability = torch.sigmoid(
-        prediction
-    )
-
-print(
-    "Prediction:",
-    probability.item()
-)
-    
-    
-    
-    
-    
-    
-    
-import torch
-import torch.nn as nn
-from torchvision import models
-
-weights = models.ResNet18_Weights.DEFAULT
-model = models.resnet18(weights=weights)
-
-for parameter in model.parameters():
-    parameter.requires_grad = False
-
-model.fc = nn.Linear(model.fc.in_features, 4)
-
-for parameter in model.fc.parameters():
-    parameter.requires_grad = True
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torchvision import models, datasets
-from torch.utils.data import DataLoader
-
-device = torch.device(
-    "cuda" if torch.cuda.is_available() else "cpu"
-)
-
-weights = models.ResNet18_Weights.DEFAULT
-preprocess = weights.transforms()
-
-train_dataset = datasets.ImageFolder(
-    "data/train",
-    transform=preprocess
-)
-
-val_dataset = datasets.ImageFolder(
-    "data/val",
-    transform=preprocess
-)
-
-if train_dataset.classes != val_dataset.classes:
-    raise ValueError("Training and validation classes do not match.")
-
-num_classes = len(train_dataset.classes)
-
-train_loader = DataLoader(
-    train_dataset,
-    batch_size=32,
-    shuffle=True
-)
-
-val_loader = DataLoader(
-    val_dataset,
-    batch_size=32,
-    shuffle=False
-)
-
-model = models.resnet18(weights=weights)
-
-for parameter in model.parameters():
-    parameter.requires_grad = False
-
-model.fc = nn.Linear(
-    model.fc.in_features,
-    num_classes
-)
-
-for parameter in model.fc.parameters():
-    parameter.requires_grad = True
-
-model = model.to(device)
-
-loss_function = nn.CrossEntropyLoss()
-
-optimizer = optim.Adam(
-    model.fc.parameters(),
-    lr=0.001
-)
-
-best_val_accuracy = 0.0
-epochs = 5
-
-for epoch in range(epochs):
-    model.train()
-    train_loss = 0.0
-
-    for images, labels in train_loader:
-        images = images.to(device)
-        labels = labels.to(device)
-
-        optimizer.zero_grad()
-
-        logits = model(images)
-
-        loss = loss_function(logits, labels)
-
-        loss.backward()
-        optimizer.step()
-
-        train_loss += loss.item()
-
-    model.eval()
-    correct = 0
-    total = 0
-
-    with torch.no_grad():
-        for images, labels in val_loader:
-            images = images.to(device)
-            labels = labels.to(device)
-
-            logits = model(images)
-            predictions = logits.argmax(dim=1)
-
-            correct += (predictions == labels).sum().item()
-            total += labels.size(0)
-
-    val_accuracy = correct / total if total > 0 else 0.0
-
-    print(
-        f"Epoch {epoch + 1}/{epochs} | "
-        f"Train loss: {train_loss:.4f} | "
-        f"Validation accuracy: {val_accuracy:.2%}"
-    )
-
-    if val_accuracy > best_val_accuracy:
-        best_val_accuracy = val_accuracy
-
-        torch.save(
-            {
-                "model_state_dict": model.state_dict(),
-                "class_names": train_dataset.classes,
-                "validation_accuracy": val_accuracy
-            },
-            "best_transfer_model.pt"
-        )
-
-print("Best validation accuracy:", f"{best_val_accuracy:.2%}")
-
-
-
-
-
-
-
-
-
-
-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torchvision import models
-
-weights = models.ResNet18_Weights.DEFAULT
-model = models.resnet18(weights=weights)
-
-num_classes = 4
-model.fc = nn.Linear(model.fc.in_features, num_classes)
-
-for parameter in model.parameters():
-    parameter.requires_grad = False
-
-for parameter in model.layer4.parameters():
-    parameter.requires_grad = True
-
-for parameter in model.fc.parameters():
-    parameter.requires_grad = True
-
-optimizer = optim.SGD(
-    [
-        {"params": model.layer4.parameters(), "lr": 0.0001},
-        {"params": model.fc.parameters(), "lr": 0.01}
-    ],
-    momentum=0.9
-)
-
-loss_function = nn.CrossEntropyLoss()
-
-device = torch.device(
-    "cuda" if torch.cuda.is_available() else "cpu"
-)
-model = model.to(device)
-
-for epoch in range(5):
-    model.train()
-
-    for images, labels in train_loader:
-        images = images.to(device)
-        labels = labels.to(device)
-
-        optimizer.zero_grad()
-        logits = model(images)
-        loss = loss_function(logits, labels)
-        loss.backward()
-        optimizer.step()
-
-    model.eval()
-    validation_loss = 0.0
-    validation_count = 0
-
-    with torch.no_grad():
-        for images, labels in val_loader:
-            images = images.to(device)
-            labels = labels.to(device)
-
-            logits = model(images)
-            loss = loss_function(logits, labels)
-
-            validation_loss += loss.item() * labels.size(0)
-            validation_count += labels.size(0)
-
-    mean_val_loss = (
-        validation_loss / validation_count
-        if validation_count > 0 else float("nan")
-    )
-
-    print(
-        f"Epoch {epoch + 1}: "
-        f"Validation loss = {mean_val_loss:.4f}"
-    )
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-import pandas as pd
-import torch
-import torch.nn as nn
-
-class TinyModel(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.hidden = nn.Linear(2, 4)
-        self.output = nn.Linear(4, 1)
-        self.relu = nn.ReLU()
-
-    def forward(self, x):
-        x = self.relu(self.hidden(x))
-        return self.output(x)
-
-model = TinyModel()
-model.eval()
-
-def score_batch(df):
-    inputs = torch.tensor(
-        df[["x1", "x2"]].values,
-        dtype=torch.float32
-    )
-
-    with torch.no_grad():
-        logits = model(inputs)
-        probabilities = torch.sigmoid(logits).squeeze(1)
-
-    return pd.Series(probabilities.tolist(), index=df.index)
-
-batch = pd.DataFrame({
-    "x1": [0.0, 0.0, 1.0, 1.0],
-    "x2": [0.0, 1.0, 0.0, 1.0]
-})
-
-batch["predicted_probability"] = score_batch(batch)
-
-print(batch)
-
-
-
-
-
-
-
-
-
-
-
-
-import pandas as pd
-import torch
-import torch.nn as nn
-
-from pyspark.sql import functions as F
-from pyspark.sql.functions import pandas_udf
-from pyspark.sql.types import DoubleType
-
-
-class TinyModel(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.hidden = nn.Linear(2, 4)
-        self.output = nn.Linear(4, 1)
-        self.relu = nn.ReLU()
-
-    def forward(self, x):
-        x = self.relu(self.hidden(x))
-        return self.output(x)
-
-
-def load_model():
-    model = TinyModel()
-
-    state = torch.load(
-        "tiny_model.pth",
-        map_location="cpu",
-        weights_only=True
-    )
-
-    model.load_state_dict(state)
-    model.eval()
-
-    return model
-
-
-model = load_model()
-
-
-@pandas_udf(DoubleType())
-def score_batch(x1: pd.Series, x2: pd.Series) -> pd.Series:
-    inputs = torch.tensor(
-        pd.concat([x1, x2], axis=1).values,
-        dtype=torch.float32
-    )
-
-    with torch.no_grad():
-        logits = model(inputs)
-        probabilities = torch.sigmoid(logits).squeeze(1)
-
-    return pd.Series(probabilities.tolist())
-
-
-scored_df = input_df.withColumn(
-    "predicted_probability",
-    score_batch(F.col("x1"), F.col("x2"))
-)
-
-
-
-
-
-
-
-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-
-torch.manual_seed(42)
-
-X = torch.tensor([
-    [50.0, 1.0, 20.0],
-    [80.0, 2.0, 15.0],
-    [100.0, 2.0, 10.0],
-    [120.0, 3.0, 8.0],
-    [150.0, 3.0, 5.0],
-    [180.0, 4.0, 2.0]
-])
-
-y = torch.tensor([
-    [20.0],
-    [32.0],
-    [40.0],
-    [48.0],
-    [60.0],
-    [72.0]
-])
-
-class HousePriceModel(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.network = nn.Sequential(
-            nn.Linear(3, 8),
-            nn.ReLU(),
-            nn.Linear(8, 1)
-        )
-
-    def forward(self, x):
-        return self.network(x)
-
-model = HousePriceModel()
-
-loss_function = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=0.01)
-
-for epoch in range(500):
-    model.train()
-
-    predictions = model(X)
-    loss = loss_function(predictions, y)
-
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
-
-torch.save(model.state_dict(), "house_model.pth")
-
-loaded_model = HousePriceModel()
-loaded_model.load_state_dict(
-    torch.load("house_model.pth", map_location="cpu", weights_only=True)
-)
-loaded_model.eval()
-
-new_house = torch.tensor([[130.0, 3.0, 6.0]])
-
-with torch.no_grad():
-    predicted_price = loaded_model(new_house)
-
-print("Predicted house price:", predicted_price.item())
-
-
-
-
-
-
-
-
-
-
-
-
-
-Inference: use learned weights to make predictions.
-Batch inference: score many already-available records together; optimize throughput.
-Real-time serving: respond quickly to individual live requests; optimize latency.
-PyTorch inference pattern
-model.eval()with torch.no_grad():    outputs = model(inputs)
-
-
-
-Batch scoring function
-def score_batch(df):    inputs = torch.tensor(        df[["x1", "x2"]].values,        dtype=torch.float32    )    with torch.no_grad():        outputs = model(inputs)    return outputs
-
-
-
-Spark UDF choices
-- Standard UDF: row-oriented function execution.
-- Pandas UDF: vectorized batches of values.
-- Spark distributes partitions; vectorization improves per-batch scoring efficiency.
-Remember: load the model once per worker process and reuse it. Preserve the training feature order and preprocessing.
-
-
-
-
-
-
-
-
-
-
-
-
-
-import torch
-
-def load_model(model, checkpoint_path, device="cpu"):
-    model = model.to(device)
-
-    state_dict = torch.load(
-        checkpoint_path,
-        map_location=device,
-        weights_only=True
-    )
-
-    model.load_state_dict(state_dict)
-    model.eval()
-
-    return model
-
-
-def predict(model, input_tensor, device="cpu"):
-    model.eval()
-    input_tensor = input_tensor.to(device)
-
-    with torch.no_grad():
-        output = model(input_tensor)
-
-    return output
-
-
-# Example usage:
-# model = HousePriceModel()
-# model = load_model(model, "house_model.pth")
-# sample = torch.tensor([[130.0, 3.0, 6.0]])
-# result = predict(model, sample)
-# print(result.item())
-
-
-
-
-import torch
-import torch.nn as nn
-
-# 1. Define the model architecture
-class TinyModel(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.hidden = nn.Linear(2, 4)
-        self.relu = nn.ReLU()
-        self.output = nn.Linear(4, 1)
-
-    def forward(self, x):
-        x = self.relu(self.hidden(x))
-        return self.output(x)
-
-
-# 2. Create the model and switch to inference mode
-model = TinyModel()
-model.eval()
-
-# 3. Create an example input: one row, two features
-example_input = torch.rand(1, 2)
-
-# 4. Convert with tracing
-traced_model = torch.jit.trace(model, example_input)
-traced_model.save("tiny_model_traced.pt")
-
-# 5. Convert with scripting
-scripted_model = torch.jit.script(model)
-scripted_model.save("tiny_model_scripted.pt")
-
-# 6. Load the scripted model back
-loaded_model = torch.jit.load("tiny_model_scripted.pt")
-loaded_model.eval()
-
-# 7. Make a prediction
-sample = torch.tensor([[1.0, 1.0]])
-
-with torch.no_grad():
-    original_output = model(sample)
-    loaded_output = loaded_model(sample)
-
-print("Original model output:", original_output.item())
-print("Loaded model output:", loaded_output.item())
-
-# 8. Compare both outputs
-print(
-    "Outputs match:",
-    torch.allclose(original_output, loaded_output, atol=1e-6)
-)
-
-
-
-
-
-
-
-
-
-# Save the model's learned parameters
-torch.save(model.state_dict(), "tiny_model_weights.pth")
-
-# Load the saved parameters
-model_again = TinyModel()
-
-weights = torch.load(
-    "tiny_model_weights.pth",
-    map_location="cpu",
-    weights_only=True
-)
-
-model_again.load_state_dict(weights)
-model_again.eval()
-
-
-
-
-
-
-
-
-
-import torch
-import torch.nn as nn
-
-# Define the SAME architecture used during training
-class MyModel(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.network = nn.Sequential(
-            nn.Linear(2, 8),
-            nn.ReLU(),
-            nn.Linear(8, 1)
-        )
-
-    def forward(self, x):
-        return self.network(x)
-
-
-# SAVE — run after training
-model = MyModel()
-# ... train model here ...
-torch.save(model.state_dict(), "model.pth")
-
-
-# LOAD — in your inference application
-device = torch.device("cpu")
-
-loaded_model = MyModel()
-state_dict = torch.load(
-    "model.pth",
-    map_location=device,
-    weights_only=True
-)
-loaded_model.load_state_dict(state_dict)
-loaded_model.eval()
-
-# PREDICT
-sample = torch.tensor([[1.0, 2.0]], dtype=torch.float32)
-
-with torch.no_grad():
-    prediction = loaded_model(sample)
-
-print(prediction)
-
-
-
-
-
-
-
-
-
-
-import pandas as pd
-import torch
-import torch.nn as nn
-
-
-# 1. Define a model that accepts two input features
-class TinyModel(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-        self.hidden = nn.Linear(2, 4)
-        self.relu = nn.ReLU()
-        self.output = nn.Linear(4, 1)
-
-    def forward(self, x):
-        x = self.relu(self.hidden(x))
-        return self.output(x)
-
-
-# 2. Create a model and put it in evaluation mode
-model = TinyModel()
-model.eval()
-
-
-# 3. Define a function that scores an entire batch
-def score_batch(df: pd.DataFrame) -> pd.Series:
-    # Extract features in the exact order expected by the model
-    inputs = torch.tensor(
-        df[["x1", "x2"]].values,
-        dtype=torch.float32
-    )
-
-    # Inference: no gradient calculation is needed
-    with torch.no_grad():
-        raw_outputs = model(inputs)
-
-        # Convert logits into values between 0 and 1
-        probabilities = torch.sigmoid(raw_outputs).squeeze(1)
-
-    # Return one prediction for each input row
-    return pd.Series(probabilities.tolist(), index=df.index)
-
-
-# 4. Create a sample batch of four records
-batch = pd.DataFrame({
-    "x1": [0.0, 0.0, 1.0, 1.0],
-    "x2": [0.0, 1.0, 0.0, 1.0]
-})
-
-
-# 5. Score all four rows in one model call
-batch["predicted_probability"] = score_batch(batch)
-
-
-# 6. Display the predictions
-print(batch)
-
-
-
-
-
-
-
-
-
-
-
-import pandas as pd
-import torch
-
-from pyspark.sql.functions import pandas_udf
-from pyspark.sql.types import DoubleType
-
-
-# Assumes model is already loaded and in evaluation mode.
-@pandas_udf(DoubleType())
-def predict_batch(x1: pd.Series, x2: pd.Series) -> pd.Series:
-    inputs = torch.tensor(
-        pd.concat([x1, x2], axis=1).values,
-        dtype=torch.float32
-    )
-
-    with torch.no_grad():
-        raw_outputs = model(inputs)
-        probabilities = torch.sigmoid(raw_outputs).squeeze(1)
-
-    return pd.Series(probabilities.tolist())
-
-
-# Example Spark DataFrame: spark_df contains x1 and x2 columns.
-scored_df = spark_df.withColumn(
-    "predicted_probability",
-    predict_batch(spark_df["x1"], spark_df["x2"])
-)
-
-
-
-
-
-
-
-
+    squared_errors = [(yt - yp) ** 2 for yt, yp in zip(y_true, y_pred)]
+    return sum(squared_errors) / n
+
+true_prices = [50.0, 65.0, 40.0]
+pred_prices = [48.0, 70.0, 44.0]
+mse_result = compute_mse_loss(true_prices, pred_prices)
+print(f"Mean Squared Error (MSE): {mse_result:.4f}")
+
+
+# ------------------------------------------------------------------------------
+# 3.2 Binary Cross-Entropy (BCE) Loss for Classification
+# ------------------------------------------------------------------------------
+def compute_bce_loss(y_true, y_pred_prob, epsilon=1e-12):
+    """
+    Computes Binary Cross-Entropy Loss: -[y*log(p) + (1-y)*log(1-p)].
+    Uses epsilon clipping to prevent numerical instability at log(0).
+    """
+    clipped_p = min(max(y_pred_prob, epsilon), 1.0 - epsilon)
+    loss = - (y_true * math.log(clipped_p) + (1.0 - y_true) * math.log(1.0 - clipped_p))
+    return loss
+
+loss_confident_correct = compute_bce_loss(y_true=1, y_pred_prob=0.95)
+loss_confident_wrong   = compute_bce_loss(y_true=1, y_pred_prob=0.05)
+
+print(f"BCE Loss (Confident Correct, p=0.95): {loss_confident_correct:.4f}")
+print(f"BCE Loss (Confident Wrong,   p=0.05): {loss_confident_wrong:.4f} (Heavily penalized)")
+
+
+# ==============================================================================
+# 4. BACKPROPAGATION & MANUAL GRADIENT DESCENT ON LOGIC GATES (AND GATE)
+# ==============================================================================
+print("\n" + "=" * 80)
+print("4. BACKPROPAGATION & MANUAL GRADIENT DESCENT (TRAINING A SINGLE NEURON)")
+print("=" * 80)
 
 import random
+
+# Complete from-scratch training of a single sigmoid neuron to learn the logical AND gate
+# Truth table: (0,0)->0, (0,1)->0, (1,0)->0, (1,1)->1
+and_gate_data = [
+    ([0.0, 0.0], 0.0),
+    ([0.0, 1.0], 0.0),
+    ([1.0, 0.0], 0.0),
+    ([1.0, 1.0], 1.0)
+]
+
+# Initialize weights and bias randomly
+random.seed(42)
+w1 = random.uniform(-0.5, 0.5)
+w2 = random.uniform(-0.5, 0.5)
+bias = random.uniform(-0.5, 0.5)
+learning_rate = 0.5
+epochs = 600
+
+print(f"Initial Random Parameters -> w1: {w1:.3f}, w2: {w2:.3f}, bias: {bias:.3f}")
+
+for epoch in range(epochs):
+    epoch_loss = 0.0
+    for (x1, x2), y_true in and_gate_data:
+        # 1. Forward Pass
+        z = (x1 * w1) + (x2 * w2) + bias
+        p = 1.0 / (1.0 + math.exp(-z))  # Sigmoid
+
+        # 2. Loss Computation
+        loss = compute_bce_loss(y_true, p)
+        epoch_loss += loss
+
+        # 3. Backpropagation (Chain Rule for Sigmoid + BCE loss simplifies to: dL/dz = p - y)
+        dloss_dz = p - y_true
+        grad_w1 = dloss_dz * x1
+        grad_w2 = dloss_dz * x2
+        grad_bias = dloss_dz * 1.0
+
+        # 4. Gradient Descent Parameter Updates
+        w1 -= learning_rate * grad_w1
+        w2 -= learning_rate * grad_w2
+        bias -= learning_rate * grad_bias
+
+    if epoch % 200 == 0 or epoch == epochs - 1:
+        print(f"Epoch {epoch:>3} | Average BCE Loss: {epoch_loss / len(and_gate_data):.4f}")
+
+print("\nFinal Trained AND Gate Predictions:")
+for (x1, x2), y_true in and_gate_data:
+    z = (x1 * w1) + (x2 * w2) + bias
+    pred = 1.0 / (1.0 + math.exp(-z))
+    print(f"  Inputs: ({x1}, {x2}) | Target: {y_true} | Predicted: {pred:.4f} -> Class: {1 if pred > 0.5 else 0}")
+
+
+# ==============================================================================
+# 5. PYTORCH TENSORS: CREATION, SHAPES, RESHAPING, DTYPES & GPU ACCELERATION
+# ==============================================================================
+print("\n" + "=" * 80)
+print("5. PYTORCH TENSORS: CREATION, SHAPES, RESHAPING, DTYPES & GPU")
+print("=" * 80)
+
 import torch
 
-# Both models use the same architecture.
-model_v1 = HousePriceModel()
-model_v2 = HousePriceModel()
+# ------------------------------------------------------------------------------
+# 5.1 Device Configuration
+# ------------------------------------------------------------------------------
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Active Compute Device: {device}")
 
-model_v1.load_state_dict(
-    torch.load("house_model_v1.pth",
-               map_location="cpu",
-               weights_only=True)
+# ------------------------------------------------------------------------------
+# 5.2 Tensor Creation & Dimensionality
+# ------------------------------------------------------------------------------
+scalar_t = torch.tensor(7.0)                     # 0-D tensor: shape ()
+vector_t = torch.tensor([1.0, 2.0, 3.0])         # 1-D tensor: shape (3,)
+matrix_t = torch.tensor([[1.0, 2.0], [3.0, 4.0]])# 2-D tensor: shape (2, 2)
+zeros_t  = torch.zeros(2, 3)                     # Shape: (2, 3)
+ones_t   = torch.ones(2, 3)                      # Shape: (2, 3)
+rand_t   = torch.rand(2, 3)                      # Uniform random in [0, 1)
+arange_t = torch.arange(0, 10)                   # [0, 1, ..., 9]
+
+print(f"Vector Tensor: {vector_t} | Shape: {vector_t.shape} | Dtype: {vector_t.dtype}")
+print(f"Matrix Tensor Shape: {matrix_t.shape} | Device: {matrix_t.device}")
+
+# ------------------------------------------------------------------------------
+# 5.3 Reshaping, Views & Matrix Operations
+# ------------------------------------------------------------------------------
+flat_t = ones_t.reshape(6)  # Reshape from (2, 3) to (6,)
+print(f"Reshaped Tensor Shape: {flat_t.shape}")
+
+# Element-wise operations vs Matrix Multiplication
+a_mat = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+b_mat = torch.tensor([[5.0, 6.0], [7.0, 8.0]])
+
+elem_mult = a_mat * b_mat  # [[1*5, 2*6], [3*7, 4*8]] = [[5, 12], [21, 32]]
+matmul_res = a_mat @ b_mat # Row-by-column matrix multiplication
+
+print("Element-wise Multiplication (a * b):")
+print(elem_mult)
+print("Matrix Multiplication (a @ b):")
+print(matmul_res)
+
+# Simulated Layer Linear Transformation in PyTorch
+inputs_batch = torch.rand(32, 4)   # 32 samples, 4 features
+weights_layer = torch.rand(4, 6)   # 4 input features, 6 output neurons
+bias_layer = torch.rand(6)         # 6 biases
+
+layer_output = inputs_batch @ weights_layer + bias_layer
+print(f"Batched Layer Output Shape: {layer_output.shape}")  # Expect (32, 6)
+
+
+# ==============================================================================
+# 6. PYTORCH AUTOGRAD: COMPUTATION GRAPHS & DYNAMIC DERIVATIVES
+# ==============================================================================
+print("\n" + "=" * 80)
+print("6. PYTORCH AUTOGRAD: COMPUTATION GRAPHS & DYNAMIC DERIVATIVES")
+print("=" * 80)
+
+# Set up trainable parameters with requires_grad=True
+w1_t = torch.tensor(0.5, requires_grad=True)
+w2_t = torch.tensor(-0.3, requires_grad=True)
+b_t  = torch.tensor(0.1, requires_grad=True)
+
+# Non-trainable input features
+x1_t = torch.tensor(1.0)
+x2_t = torch.tensor(2.0)
+
+# 1. Forward Pass (Autograd records operations in dynamic computation graph)
+z_t = (x1_t * w1_t) + (x2_t * w2_t) + b_t
+print(f"Autograd Forward z output: {z_t.item():.4f}")
+
+# 2. Backward Pass (Triggers automatic chain rule differentiation)
+z_t.backward()
+
+# 3. Read accumulated partial derivatives from .grad attributes
+print("Autograd Computed Gradients:")
+print(f"  dz / dw1:  {w1_t.grad.item():.4f} (Expected: x1 = 1.0)")
+print(f"  dz / dw2:  {w2_t.grad.item():.4f} (Expected: x2 = 2.0)")
+print(f"  dz / db:   {b_t.grad.item():.4f}  (Expected: 1.0)")
+
+# Disabling Gradients for Evaluation/Serving via torch.no_grad()
+with torch.no_grad():
+    inference_z = (x1_t * w1_t) + (x2_t * w2_t) + b_t
+    print(f"Inference with torch.no_grad(): {inference_z.item():.4f} (No graph recorded)")
+
+
+# ==============================================================================
+# 7. PYTORCH NEURAL NETWORK BUILDING BLOCKS (TORCH.NN.MODULE)
+# ==============================================================================
+print("\n" + "=" * 80)
+print("7. PYTORCH NEURAL NETWORK BUILDING BLOCKS (TORCH.NN.MODULE)")
+print("=" * 80)
+
+import torch.nn as nn
+
+class ConfigurableMLP(nn.Module):
+    """
+    Production-style configurable Multi-Layer Perceptron built with PyTorch.
+    Demonstrates nn.Linear, activations, and parameter tracking.
+    """
+    def __init__(self, in_features, hidden_features, out_features, dropout_prob=0.1):
+        super().__init__()
+        self.network = nn.Sequential(
+            nn.Linear(in_features, hidden_features),
+            nn.ReLU(),
+            nn.Dropout(p=dropout_prob),
+            nn.Linear(hidden_features, hidden_features),
+            nn.ReLU(),
+            nn.Linear(hidden_features, out_features)
+        )
+
+    def forward(self, x):
+        return self.network(x)
+
+mlp_model = ConfigurableMLP(in_features=4, hidden_features=16, out_features=1)
+print("ConfigurableMLP Architecture:")
+print(mlp_model)
+
+total_trainable_params = sum(p.numel() for p in mlp_model.parameters() if p.requires_grad)
+print(f"Total Trainable Parameters: {total_trainable_params}")
+
+
+# ==============================================================================
+# 8. CANONICAL PYTORCH 5-STEP TRAINING LOOP & EVALUATION
+# ==============================================================================
+print("\n" + "=" * 80)
+print("8. CANONICAL PYTORCH 5-STEP TRAINING LOOP & EVALUATION")
+print("=" * 80)
+
+import torch.optim as optim
+
+# Synthetic training data for AND gate
+X_train_t = torch.tensor([[0., 0.], [0., 1.], [1., 0.], [1., 1.]], dtype=torch.float32)
+y_train_t = torch.tensor([[0.], [0.], [0.], [1.]], dtype=torch.float32)
+
+class TinyClassifier(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.hidden = nn.Linear(2, 4)
+        self.relu = nn.ReLU()
+        self.output = nn.Linear(4, 1)
+
+    def forward(self, x):
+        return self.output(self.relu(self.hidden(x)))
+
+torch.manual_seed(42)
+classifier_model = TinyClassifier()
+
+# Loss: BCEWithLogitsLoss combines Sigmoid + BCE with mathematical stability
+loss_fn = nn.BCEWithLogitsLoss()
+optimizer = optim.SGD(classifier_model.parameters(), lr=0.5)
+
+print("Starting 5-Step PyTorch Training Loop (200 Epochs)...")
+classifier_model.train()
+
+for epoch in range(200):
+    # Step 1: Clear old accumulated gradients
+    optimizer.zero_grad()
+
+    # Step 2: Forward pass (compute model logits)
+    predictions = classifier_model(X_train_t)
+
+    # Step 3: Compute scalar loss
+    loss = loss_fn(predictions, y_train_t)
+
+    # Step 4: Backward pass (compute gradients via Autograd)
+    loss.backward()
+
+    # Step 5: Optimizer step (nudge weights downhill)
+    optimizer.step()
+
+    if (epoch + 1) % 50 == 0:
+        print(f"  Epoch [{epoch+1:>3}/200] | Loss: {loss.item():.4f}")
+
+# Evaluation Mode with torch.no_grad()
+classifier_model.eval()
+with torch.no_grad():
+    raw_logits = classifier_model(X_train_t)
+    probs = torch.sigmoid(raw_logits)
+    binary_preds = (probs > 0.5).int()
+
+print("\nFinal Evaluated Predictions:")
+for i in range(len(X_train_t)):
+    inputs = X_train_t[i].tolist()
+    target = int(y_train_t[i].item())
+    prob = probs[i].item()
+    pred_cls = binary_preds[i].item()
+    print(f"  Input: {inputs} | Target: {target} | Prob: {prob:.4f} | Predicted: {pred_cls}")
+
+
+# ==============================================================================
+# 9. CUSTOM DATASETS & DATALOADERS (BATCHING, SHUFFLING, TRANSFORMS)
+# ==============================================================================
+print("\n" + "=" * 80)
+print("9. CUSTOM DATASETS & DATALOADERS (BATCHING, SHUFFLING, TRANSFORMS)")
+print("=" * 80)
+
+from torch.utils.data import Dataset, DataLoader
+
+class LogicGateDataset(Dataset):
+    """
+    Custom PyTorch Dataset implementing the 3 mandatory methods:
+      __init__: Loads data, precomputes indices, stores optional transforms
+      __len__:  Returns total observation count
+      __getitem__: Fetches a single index, applies transforms, returns tensors
+    """
+    def __init__(self, data_pairs, transform=None):
+        self.data_pairs = data_pairs
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.data_pairs)
+
+    def __getitem__(self, idx):
+        features, target = self.data_pairs[idx]
+        x_tensor = torch.tensor(features, dtype=torch.float32)
+        y_tensor = torch.tensor([target], dtype=torch.float32)
+
+        if self.transform:
+            x_tensor = self.transform(x_tensor)
+
+        return x_tensor, y_tensor
+
+# On-the-fly feature scaling transform function
+def add_slight_jitter(tensor):
+    return tensor + torch.randn_like(tensor) * 0.01
+
+logic_dataset = LogicGateDataset(
+    data_pairs=[
+        ([0.0, 0.0], 0.0),
+        ([0.0, 1.0], 0.0),
+        ([1.0, 0.0], 0.0),
+        ([1.0, 1.0], 1.0)
+    ],
+    transform=add_slight_jitter
 )
 
-model_v2.load_state_dict(
-    torch.load("house_model_v2.pth",
-               map_location="cpu",
-               weights_only=True)
+# DataLoader handles batching, shuffling, and multi-process loading
+batch_loader = DataLoader(
+    dataset=logic_dataset,
+    batch_size=2,
+    shuffle=True,
+    drop_last=False
 )
 
-model_v1.eval()
-model_v2.eval()
+print(f"Dataset Total Samples: {len(logic_dataset)}")
+print(f"Number of Batches per Epoch (batch_size=2): {len(batch_loader)}")
 
-# Route approximately 10% of requests to Version 2.
-NEW_MODEL_PERCENT = 10
-
-
-def choose_model():
-    random_number = random.random() * 100
-
-    if random_number < NEW_MODEL_PERCENT:
-        return "v2", model_v2
-
-    return "v1", model_v1
+for batch_idx, (batch_x, batch_y) in enumerate(batch_loader):
+    print(f"  Batch {batch_idx + 1}: x shape={batch_x.shape}, y shape={batch_y.shape}")
 
 
-def predict_with_version(input_tensor):
-    version, model = choose_model()
+# ==============================================================================
+# 10. MODEL CHECKPOINTING: SAVING & RESUMING TRAINING (STATE DICTS)
+# ==============================================================================
+print("\n" + "=" * 80)
+print("10. MODEL CHECKPOINTING: SAVING & RESUMING TRAINING (STATE DICTS)")
+print("=" * 80)
 
+checkpoint_filepath = "model_training_checkpoint.pt"
+
+# Step 1: Save Comprehensive Checkpoint (weights + optimizer moments + epoch)
+checkpoint_payload = {
+    "epoch": 100,
+    "model_state_dict": classifier_model.state_dict(),
+    "optimizer_state_dict": optimizer.state_dict(),
+    "best_val_loss": 0.0421
+}
+
+torch.save(checkpoint_payload, checkpoint_filepath)
+print(f"Successfully serialized full checkpoint to '{checkpoint_filepath}'.")
+
+# Step 2: Freshly Instantiate Architecture and Restore from Checkpoint
+resumed_model = TinyClassifier()
+resumed_optimizer = optim.SGD(resumed_model.parameters(), lr=0.5)
+
+loaded_checkpoint = torch.load(checkpoint_filepath, map_location="cpu", weights_only=True)
+resumed_model.load_state_dict(loaded_checkpoint["model_state_dict"])
+resumed_optimizer.load_state_dict(loaded_checkpoint["optimizer_state_dict"])
+resumed_epoch = loaded_checkpoint["epoch"]
+
+print(f"Resumed Model Successfully from Saved Epoch: {resumed_epoch}")
+
+# Step 3: Run Inference with Restored Model in Evaluation Mode
+resumed_model.eval()
+with torch.no_grad():
+    test_input = torch.tensor([[1.0, 1.0]], dtype=torch.float32)
+    test_output = torch.sigmoid(resumed_model(test_input))
+    print(f"Restored Model Prediction for [1.0, 1.0]: {test_output.item():.4f}")
+
+
+# ==============================================================================
+# 11. TRANSFER LEARNING SUITE: FEATURE EXTRACTION VS. FINE-TUNING (RESNET18)
+# ==============================================================================
+print("\n" + "=" * 80)
+print("11. TRANSFER LEARNING SUITE: FEATURE EXTRACTION VS. FINE-TUNING")
+print("=" * 80)
+
+try:
+    from torchvision import models
+
+    # --------------------------------------------------------------------------
+    # Strategy A: Feature Extraction (Freeze Backbone, Train New Final Layer)
+    # --------------------------------------------------------------------------
+    # Initialize ResNet18 with pretrained ImageNet weights
+    weights = models.ResNet18_Weights.DEFAULT
+    resnet_extractor = models.resnet18(weights=weights)
+
+    # Freeze every parameter in the pretrained convolutional backbone
+    for param in resnet_extractor.parameters():
+        param.requires_grad = False
+
+    # Replace the 1,000-class ImageNet fully connected head with a 4-class head
+    num_target_classes = 4
+    resnet_extractor.fc = nn.Linear(resnet_extractor.fc.in_features, num_target_classes)
+    # Note: newly assigned layers automatically have requires_grad=True by default
+
+    # Verify parameter counts
+    trainable_p = sum(p.numel() for p in resnet_extractor.parameters() if p.requires_grad)
+    frozen_p    = sum(p.numel() for p in resnet_extractor.parameters() if not p.requires_grad)
+
+    print("--- Strategy A: Feature Extraction (ResNet18) ---")
+    print(f"  Trainable Parameters (Head only): {trainable_p:>8,}")
+    print(f"  Frozen Parameters (Backbone):     {frozen_p:>8,}")
+    print(f"  Expected Transforms: {weights.transforms()}")
+
+except Exception as e:
+    print(f"[NOTE] torchvision models download skipped or offline: {e}")
+    print("Standard Feature Extraction Code Pattern demonstrated below:")
+    print("""
+    from torchvision import models
+    model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+    for param in model.parameters():
+        param.requires_grad = False
+    model.fc = nn.Linear(model.fc.in_features, num_classes)
+    """)
+
+
+# ==============================================================================
+# 12. TRANSFER LEARNING: DIFFERENTIAL LEARNING RATES PER PARAMETER GROUP
+# ==============================================================================
+print("\n" + "=" * 80)
+print("12. DIFFERENTIAL LEARNING RATES PER PARAMETER GROUP (FINE-TUNING)")
+print("=" * 80)
+
+# Simulate fine-tuning architecture with a backbone and a classification head
+class CustomFineTuneModel(nn.Module):
+    def __init__(self, in_features=128, num_classes=3):
+        super().__init__()
+        # Simulated pretrained backbone
+        self.backbone_layer1 = nn.Linear(in_features, 64)
+        self.backbone_layer2 = nn.Linear(64, 32)
+        # Newly added task-specific classification head
+        self.fc_head = nn.Linear(32, num_classes)
+
+    def forward(self, x):
+        x = torch.relu(self.backbone_layer1(x))
+        x = torch.relu(self.backbone_layer2(x))
+        return self.fc_head(x)
+
+ft_model = CustomFineTuneModel()
+
+# Unfreeze backbone layer 2 and the head, keep layer 1 frozen
+for param in ft_model.backbone_layer1.parameters():
+    param.requires_grad = False
+for param in ft_model.backbone_layer2.parameters():
+    param.requires_grad = True
+
+# Assign Differential Learning Rates via Parameter Groups:
+#   - Backbone gets a gentle learning rate (1e-4) to prevent catastrophic forgetting
+#   - Newly added head gets a large learning rate (1e-2) to learn the new task rapidly
+differential_optimizer = optim.Adam([
+    {"params": ft_model.backbone_layer2.parameters(), "lr": 1e-4},
+    {"params": ft_model.fc_head.parameters(),         "lr": 1e-2}
+], weight_decay=1e-4)
+
+print("Configured Differential Parameter Groups:")
+for group_idx, group in enumerate(differential_optimizer.param_groups):
+    param_count = sum(p.numel() for p in group["params"])
+    print(f"  Group {group_idx}: {param_count} parameters | Configured Learning Rate: {group['lr']}")
+
+
+# ==============================================================================
+# 13. MODEL SERVING: PRODUCTION-READY FASTAPI ENDPOINT WITH PYDANTIC VALIDATION
+# ==============================================================================
+print("\n" + "=" * 80)
+print("13. PRODUCTION MODEL SERVING: FASTAPI & PYDANTIC VALIDATION")
+print("=" * 80)
+
+try:
+    import os
+    from fastapi import FastAPI, HTTPException
+    from pydantic import BaseModel, Field
+    from contextlib import asynccontextmanager
+
+    # 1. Pydantic Request Model with Strict Boundary Constraints
+    class PredictionRequest(BaseModel):
+        x1: float = Field(..., ge=0.0, le=1.0, description="Feature 1 in range [0, 1]")
+        x2: float = Field(..., ge=0.0, le=1.0, description="Feature 2 in range [0, 1]")
+
+    # 2. Pydantic Response Model
+    class PredictionResponse(BaseModel):
+        predicted_probability: float
+        predicted_class: int
+        model_version: str
+
+    # 3. Lifespan Context Manager: Loads model ONCE at startup, NOT per request!
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        # Startup: Load model once into memory
+        loaded = TinyClassifier()
+        if os.path.exists(checkpoint_filepath):
+            state = torch.load(checkpoint_filepath, map_location="cpu", weights_only=True)
+            loaded.load_state_dict(state["model_state_dict"])
+        loaded.eval()
+        app.state.model = loaded
+        print("[FastAPI Startup] Model loaded once into application state.")
+        yield
+        # Shutdown: Resource cleanup
+        app.state.model = None
+        print("[FastAPI Shutdown] Model state released.")
+
+    app = FastAPI(title="Logic Gate Serving Endpoint", version="1.0.0", lifespan=lifespan)
+
+    @app.get("/health")
+    def health_check():
+        """Standard liveness probe for load balancers and Kubernetes."""
+        return {"status": "healthy", "service": "logic-gate-inference"}
+
+    @app.post("/predict", response_model=PredictionResponse)
+    def predict_endpoint(request: PredictionRequest):
+        """Production inference route with strict Pydantic validation."""
+        model = getattr(app.state, "model", None)
+        if model is None:
+            raise HTTPException(status_code=503, detail="Model service not initialized")
+
+        input_tensor = torch.tensor([[request.x1, request.x2]], dtype=torch.float32)
+
+        with torch.no_grad():
+            raw_logits = model(input_tensor)
+            prob = torch.sigmoid(raw_logits).item()
+            cls_pred = 1 if prob >= 0.5 else 0
+
+        return PredictionResponse(
+            predicted_probability=round(prob, 4),
+            predicted_class=cls_pred,
+            model_version="v1.0"
+        )
+
+    print("FastAPI Application & Pydantic Validation Pipeline Configured Successfully.")
+
+except ImportError:
+    print("[NOTE] 'fastapi' or 'pydantic' not installed. Production code blueprint shown above.")
+
+
+# ==============================================================================
+# 14. MODEL SERIALIZATION: TORCHSCRIPT COMPILATION (TRACING VS. SCRIPTING)
+# ==============================================================================
+print("\n" + "=" * 80)
+print("14. MODEL SERIALIZATION: TORCHSCRIPT (TRACING VS. SCRIPTING)")
+print("=" * 80)
+
+# Compile PyTorch model into TorchScript for deployment in C++ runtime environments
+dummy_input = torch.rand(1, 2)
+classifier_model.eval()
+
+# Method A: Tracing (Records operations for fixed computation flow)
+traced_model = torch.jit.trace(classifier_model, dummy_input)
+traced_model_path = "model_compiled_traced.pt"
+traced_model.save(traced_model_path)
+
+# Method B: Scripting (Parses Python AST directly to capture dynamic conditionals)
+scripted_model = torch.jit.script(classifier_model)
+scripted_model_path = "model_compiled_scripted.pt"
+scripted_model.save(scripted_model_path)
+
+# Load compiled model back WITHOUT requiring Python class definition
+loaded_jit = torch.jit.load(scripted_model_path)
+loaded_jit.eval()
+
+with torch.no_grad():
+    sample_tensor = torch.tensor([[1.0, 1.0]], dtype=torch.float32)
+    orig_res = classifier_model(sample_tensor)
+    jit_res  = loaded_jit(sample_tensor)
+    match_check = torch.allclose(orig_res, jit_res, atol=1e-6)
+
+print(f"Traced Model Saved to:   '{traced_model_path}'")
+print(f"Scripted Model Saved to: '{scripted_model_path}'")
+print(f"TorchScript and Original Python Outputs Match Identically: {match_check}")
+
+
+# ==============================================================================
+# 15. HIGH-THROUGHPUT BATCH INFERENCE (VECTORIZED SCORING & PANDAS UDF)
+# ==============================================================================
+print("\n" + "=" * 80)
+print("15. HIGH-THROUGHPUT BATCH INFERENCE (VECTORIZED SCORING & PANDAS UDF)")
+print("=" * 80)
+
+import pandas as pd
+
+# Simulate batch of 1,000 incoming customer records
+np.random.seed(42)
+batch_df = pd.DataFrame({
+    "x1": np.random.uniform(0.0, 1.0, size=1000),
+    "x2": np.random.uniform(0.0, 1.0, size=1000)
+})
+
+def vectorized_score_batch(df: pd.DataFrame, model_to_use) -> pd.Series:
+    """
+    Scores an entire batch of thousands of records in a SINGLE model forward pass,
+    mirroring the exact execution architecture of a PySpark Pandas UDF.
+    """
+    # 1. Convert entire DataFrame partition to a single 2-D float32 tensor
+    inputs_tensor = torch.tensor(df[["x1", "x2"]].values, dtype=torch.float32)
+
+    # 2. Execute inference without tracking gradients
     with torch.no_grad():
-        prediction = model(input_tensor)
+        logits = model_to_use(inputs_tensor)
+        probabilities = torch.sigmoid(logits).squeeze(1).numpy()
 
-    # In production, send this to structured application logs.
-    print(f"Model version used: {version}")
+    # 3. Return series aligned with DataFrame index
+    return pd.Series(probabilities, index=df.index)
 
-    return {
-        "model_version": version,
-        "prediction": prediction.tolist()
-    }
+batch_df["predicted_probability"] = vectorized_score_batch(batch_df, classifier_model)
+batch_df["predicted_class"] = (batch_df["predicted_probability"] >= 0.5).astype(int)
 
-
-
+print(f"Batch Scoring Complete on {len(batch_df):,} records:")
+print(batch_df.head(5).to_string())
 
 
+# ==============================================================================
+# 16. PRODUCTION DEPLOYMENT: CANARY ROUTING, A/B TESTING & AUTOMATED ROLLBACK
+# ==============================================================================
+print("\n" + "=" * 80)
+print("16. PRODUCTION DEPLOYMENT: CANARY ROUTING & AUTOMATED ROLLBACK")
+print("=" * 80)
+
+class CanaryDeploymentRouter:
+    """
+    Production traffic router that directs a controlled percentage of requests
+    to a candidate canary model (v2) while routing primary traffic to stable model (v1).
+    Monitors error rate and triggers automated rollback if errors exceed threshold.
+    """
+    def __init__(self, model_v1, model_v2, canary_percentage=10, max_error_threshold=0.05):
+        self.model_v1 = model_v1
+        self.model_v2 = model_v2
+        self.canary_percentage = canary_percentage  # e.g., 10%
+        self.max_error_threshold = max_error_threshold
+        self.v1_requests = 0
+        self.v2_requests = 0
+        self.v2_errors = 0
+        self.rollback_triggered = False
+
+    def route_and_predict(self, input_tensor):
+        if self.rollback_triggered:
+            # Automatic Rollback Active: 100% traffic goes strictly to stable Model v1
+            self.v1_requests += 1
+            with torch.no_grad():
+                return "v1_stable (ROLLED_BACK)", self.model_v1(input_tensor)
+
+        # Decide routing based on configured canary traffic percentage
+        is_canary = (random.randint(1, 100) <= self.canary_percentage)
+        selected_version = "v2_canary" if is_canary else "v1_stable"
+
+        try:
+            if is_canary:
+                self.v2_requests += 1
+                with torch.no_grad():
+                    output = self.model_v2(input_tensor)
+            else:
+                self.v1_requests += 1
+                with torch.no_grad():
+                    output = self.model_v1(input_tensor)
+            return selected_version, output
+
+        except Exception as e:
+            if is_canary:
+                self.v2_errors += 1
+                # Check for automated rollback condition
+                canary_error_rate = self.v2_errors / max(1, self.v2_requests)
+                if canary_error_rate > self.max_error_threshold:
+                    self.rollback_triggered = True
+                    print(f"\n[ALERT] Canary error rate exceeded {self.max_error_threshold:.1%}. TRIGGERING AUTOMATED ROLLBACK TO V1!")
+            raise e
+
+# Instantiate stable v1 and experimental v2
+model_stable_v1 = TinyClassifier()
+model_canary_v2 = TinyClassifier()
+router = CanaryDeploymentRouter(model_stable_v1, model_canary_v2, canary_percentage=15)
+
+print("Simulating 100 Live Production Requests Through Canary Router (15% Traffic to Canary)...")
+for _ in range(100):
+    sample = torch.rand(1, 2)
+    version_used, _ = router.route_and_predict(sample)
+
+print("\nCanary Deployment Traffic Summary:")
+print(f"  Stable Model v1 Requests Handled: {router.v1_requests:>3} ({router.v1_requests}% of total)")
+print(f"  Canary Model v2 Requests Handled: {router.v2_requests:>3} ({router.v2_requests}% of total)")
+print(f"  Canary Rollback Status:           {'TRIGGERED' if router.rollback_triggered else 'HEALTHY'}")
+
+print("\n" + "=" * 80)
+print("DEEP LEARNING & MODEL SERVING MODULES (SECTIONS 1 TO 16) COMPLETED SUCCESSFULLY")
+print("=" * 80)
