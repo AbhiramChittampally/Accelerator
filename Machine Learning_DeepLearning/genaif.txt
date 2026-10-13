@@ -1,0 +1,490 @@
+Misconception	Correct understanding
+An LLM is a database of answers.	It is a trained neural network that generates outputs using learned parameters.
+A token always equals one word.	Tokens can be words, subword pieces or other text units.
+An LLM generates the entire response at once.	Standard autoregressive LLMs generate successive tokens.
+A fluent answer must be correct.	Plausible text can still contain hallucinations.
+Every new question retrains the model.	Ordinary inference does not update its weights.
+Attention guarantees perfect understanding.	Attention helps model token relationships; it does not guarantee correctness.
+A bigger context window means perfect memory.	A model can still miss or misuse details in a long contex
+
+
+
+
+
+LLM
+Large Language Model; a neural network trained on large amounts of text.
+
+
+
+
+Tokenization
+Converts text into tokens that can be represented numerically.
+
+
+
+
+Transformer and attention
+The architecture and mechanism used to process relationships among tokens.
+
+
+
+
+Autoregressive generation
+Predict a token, append it to the sequence, and predict again.
+
+
+
+
+Hallucination
+Fluent output that contains unsupported, incorrect or fabricated information.
+
+
+
+
+
+
+Closed model
+Accessed through a provider's API; provider manages most of the model infrastructure.
+
+
+
+
+Open-weight model
+Downloadable weights allow self-hosting and may allow customization, depending on licence and resources.
+
+
+
+
+Cost
+Hosted usage charges versus self-hosted infrastructure and operating costs.
+
+
+
+
+Quality and latency
+Evaluate how well the model solves your actual task and how long it takes.
+
+
+
+
+
+
+
+
+
+
+
+
+
+ROLE:
+You are [the type of assistant or expert needed].
+
+TASK:
+Your job is to [specific action].
+
+CONTEXT:
+Here is the information you should use:
+[relevant context or source material]
+
+CONSTRAINTS:
+- [important rule]
+- [another rule]
+- Do not invent facts not supported by the context.
+
+OUTPUT FORMAT:
+Return the result as [table / bullets / JSON / code / explanation].
+
+SUCCESS CRITERIA:
+A good answer must [describe what makes the answer useful].
+
+
+
+
+
+
+
+
+ROLE:
+You are a patient Python programming tutor.
+
+TASK:
+Explain the code I provide.
+
+AUDIENCE:
+A student who knows basic Python but is learning machine learning.
+
+INSTRUCTIONS:
+1. Explain the purpose of the code.
+2. Explain each line in order.
+3. Define unfamiliar technical terms.
+4. Show a small example of the input and output.
+5. Identify likely errors and how to fix them.
+
+OUTPUT:
+Use headings, code blocks and a short recap.
+Do not silently rewrite the original code.
+
+
+
+
+
+
+
+
+3. Zero-shot prompting
+Zero-shot prompting means asking the model to perform a task without giving it examples of the desired input-output pattern. The model relies on its existing capabilities and the instructions you provide. Week-5 Accelerator-Deep-Learning---Serving---GenAI-LLMs(1).html
+
+Example:
+Classify this customer review as Positive, Negative or Neutral.
+
+Review: "The delivery was fast, but the product stopped working."
+Return only the label.
+
+
+Possible response:
+Negative
+
+
+Why might this work well?
+- The task is clear.
+- The allowed labels are specified.
+- The output format is constrained.
+- No demonstration examples are required.
+When should you use zero-shot prompting?
+Use it as your baseline when the task is straightforward or the model already understands the requested format.
+Examples include summarizing an article, translating a sentence, explaining an error message or classifying a simple review.
+Exam point: zero-shot = no examples supplied in the prompt.
+4. Few-shot prompting
+Few-shot prompting means including a small number of example input-output pairs in the prompt before asking the model to handle a new input. The examples demonstrate the pattern you want. Week-5 Accelerator-Deep-Learning---Serving---GenAI-LLMs(1).html
+
+Imagine that you want every customer review classified in a particular format.
+Without examples, the model may return a label plus an explanation, or use different wording each time. Examples can make the intended pattern more explicit.
+Example
+Classify each review as Positive, Negative or Neutral.
+
+Example 1
+Review: "Excellent quality and fast delivery."
+Label: Positive
+
+Example 2
+Review: "The item arrived broken."
+Label: Negative
+
+Example 3
+Review: "The package arrived on Tuesday."
+Label: Neutral
+
+Now classify this review:
+"The item works well, but delivery was late."
+
+Return only the label.
+
+
+Possible response:
+Positive
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Feature	Zero-shot	Few-shot
+Examples in the prompt	None	A small number
+Prompt length	Usually shorter	Usually longer
+Best starting point	Clear, familiar tasks	Specific patterns or formats that need demonstration
+Main cost consideration	Less example context	More input tokens used by examples
+
+
+
+
+
+
+
+
+
+Task:
+[Describe the task and the allowed output.]
+
+Examples:
+
+Input: [example input 1]
+Output: [desired output 1]
+
+Input: [example input 2]
+Output: [desired output 2]
+
+Input: [example input 3]
+Output: [desired output 3]
+
+Now process this new input:
+[actual input]
+
+Return the output in the same format as the examples.
+
+
+
+
+
+
+
+
+
+
+
+
+
+5. Chain-of-thought prompting
+Your notes introduce chain-of-thought prompting as explicitly asking a model to work through a problem step by step before giving a final answer. Week-5 Accelerator-Deep-Learning---Serving---GenAI-LLMs(1).html
+
+The basic idea is to encourage structured problem-solving instead of asking for an unexplained result.
+Consider this arithmetic problem:
+A shop has 24 notebooks. It sells 7 in the morning and 5 in the afternoon. How many notebooks remain?
+
+A prompt could be:
+Solve the problem below.
+
+Show a concise, numbered calculation.
+Then provide the final answer with units.
+
+Problem:
+A shop has 24 notebooks. It sells 7 in the morning
+and 5 in the afternoon. How many notebooks remain?
+
+
+A suitable response:
+1. Start with 24 notebooks.
+2. Total sold: \(7 + 5 = 12\).
+3. Remaining: \(24 - 12 = 12\).
+Final answer: 12 notebooks.
+This format makes the result easier to inspect. For technical tasks, you can similarly request the relevant formula, assumptions, intermediate values and a final result.
+A useful distinction: asking for a concise, checkable explanation is not a guarantee that the model's explanation fully reflects its internal computation. For important calculations, independently verify the steps. Also, more reasoning text does not automatically make an answer more accurate.
+When is step-by-step prompting useful?
+- Multi-step arithmetic and calculations.
+- Comparing options against multiple criteria.
+- Debugging code through a sequence of checks.
+- Planning a process with dependencies.
+- Explaining why a particular answer follows from supplied evidence.
+For simple tasks, it may add unnecessary length, cost and latency. Choose the level of explanation based on the task.
+
+6. Improve a prompt through iteration
+Prompt engineering is not about finding one magical sentence. It is a process of testing and improving instructions.
+Suppose you ask an LLM to extract information from an invoice.
+Version 1
+Prompt: Extract the invoice details.
+Problem: it doesn't specify which details or the required format.
+
+
+Version 2
+Prompt: Extract the invoice number, date, supplier and total amount.
+Improvement: the required fields are explicit, but the output may still vary.
+
+
+Version 3
+Prompt: Extract the invoice number, date, supplier and total amount. Return valid JSON with exactly these four keys. Use null when a value is missing. Do not infer details that are not present in the invoice.
+Improvement: the fields, output structure and missing-value behaviour are specified.
+
+
+A practical improvement cycle:
+1. Write a baseline prompt.
+2. Test it with several representative inputs, including difficult cases.
+3. Identify the failure: wrong content, inconsistent format, missing fields or unsupported claims.
+4. Change the prompt to address that failure.
+5. Test again on the same examples and on new examples.
+6. Keep the version that performs better against your requirements.
+
+
+
+
+
+
+
+
+
+Mistake	Better approach
+Giving a vague task	Specify the action and intended outcome.
+Forgetting the audience	State the user's experience level.
+Providing no output format	Specify JSON, a table, code or another desired structure.
+Using contradictory examples	Keep few-shot examples consistent.
+Adding too many examples	Use enough examples to establish the pattern without wasting context.
+Assuming a detailed explanation is automatically correct	Verify important calculations and factual claims.
+Using prompts to solve every problem	Consider retrieval, tools, validation or fine-tuning when appropriate.
+Assuming a RAG prompt guarantees grounding	Check whether claims are supported by retrieved passages.
+
+
+
+
+
+
+
+
+Prompt engineering
+Shape the model's behaviour through instructions and context without directly changing its weights.
+
+
+
+
+Zero-shot
+Ask the model to perform a task without supplying demonstration examples.
+
+
+
+
+Few-shot
+Include example input-output pairs to demonstrate the desired pattern.
+
+
+
+
+Chain-of-thought prompting
+Ask for a structured, step-by-step explanation or checkable calculation when the task benefits from it.
+
+
+
+
+Iteration
+Test, identify failure modes, refine the prompt and evaluate again.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Embedding
+A learned numeric vector representation of text or other data.
+
+
+
+
+Cosine similarity
+Compares the angle between two non-zero vectors to measure directional similarity.
+
+
+
+
+Vector database
+Stores vectors and associated data and supports efficient similarity search.
+
+
+
+
+ANN
+Approximate Nearest Neighbor search speeds up retrieval on large vector collections, potentially sacrificing exact nearest-neighbour results.
+
+
+
+
+RAG connection
+Embed documents, store their vectors, embed a question, retrieve relevant passages and supply those passages to an LLM.
+
+
+
+
+
+
+
+
+
+
+Aspect	RAG	Fine-tuning
+Main purpose	Supply relevant knowledge at query time	Change model behaviour, style, or task-specific skills
+Changes model weights?	No	Yes
+Uses external documents during a query?	Yes, retrieves relevant passages	Not inherently
+Updating factual information	Update the knowledge base and its index	May require additional training
+Typical use	Chat with PDFs, internal policies, changing documentation	Consistent output format, specialised behaviour, task adaptation
+
+
+
+
+
+
+
+
+
+
+
+
+Term	Meaning
+RAG	Retrieval-Augmented Generation
+Corpus	Collection of source documents
+Chunking	Splitting documents into smaller passages
+Embedding	Numerical vector representation
+Vector database	Stores vectors and associated data for similarity search
+Retrieval	Finding relevant passages for a query
+Top-k	Number of candidate results requested
+Augmentation	Adding retrieved context to the prompt
+Generation	LLM produces the final answer
+Similarity threshold	A cutoff used to filter weak retrieval matches
+Evaluation	Measuring retrieval quality and generated-answer quality
+
+
+
+
+
+
+
+Before deploying a RAG application, test each part independently.
+Review checklist
+0 of 6
+
+
+
+[ ] Corpus and chunking
+Are the right documents loaded and divided into useful passages?
+
+
+[ ] Retrieval
+Do test questions retrieve relevant evidence with acceptable precision and recall?
+
+
+[ ] Generation
+Are answers accurate, relevant and grounded in retrieved context?
+
+
+[ ] Abstention
+Does the application handle questions that cannot be answered from the documents?
+
+
+[ ] Security
+Are untrusted instructions, unauthorised documents and unsafe inputs handled appropriately?
+
+
+[ ] Regression tests
+Do the same tests still pass after changes to the model, prompts or retrieval settings?
+
+
+
+This checklist is a practical synthesis of the evaluation and safety principles in your Week 5 notes. A checked box means you have reviewed the item; it does not mean the application has been independently tested.
+10. Cheat sheet
+Concept	Remember this
+Evaluation harness	Repeatable test questions and grading criteria
+Retrieval quality	Did the system find the right evidence?
+Generation quality	Did the LLM use that evidence correctly?
+Precision	Relevant retrieved chunks ÷ all retrieved chunks
+Recall	Relevant retrieved chunks ÷ all relevant chunks
+Human evaluation	People review answer quality
+LLM-as-judge	A separate LLM evaluates an answer
+Hallucination	Unsupported or false information presented as fact
+Guardrails	Checks that keep application behaviour within intended boundaries
+Prompt injection	Malicious instructions embedded in content the model processes
+Input guardrails	Validate requests before processing
+Prompt guardrails	Separate trusted instructions from untrusted data
+Output guardrails	Check the response before returning it

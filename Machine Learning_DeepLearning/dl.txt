@@ -410,3 +410,1356 @@ Linear output
                       │
                       ▼
                   PREDICTION
+
+
+
+
+
+
+Input
+  ↓
+Forward Pass
+  ↓
+Prediction
+  ↓
+Loss
+  ↓
+Backpropagation
+  ↓
+Gradients
+  ↓
+Gradient Descent
+  ↓
+Updated Weights
+  ↓
+Forward Pass again
+  ↓
+...
+
+
+
+
+
+
+
+
+Input
+ ↓
+Weights
+ ↓
+Neuron
+ ↓
+Prediction
+ ↓
+Loss
+
+
+
+
+             FORWARD
+Input ───────────────────→ Prediction
+                              ↓
+                             Loss
+                              │
+                              │
+                              ↓
+                         BACKPROPAGATION
+                              │
+                              ↓
+                          Gradients
+                              │
+                              ↓
+                       GRADIENT DESCENT
+                              │
+                              ↓
+                       Updated Weights
+                              │
+                              └──────→ Forward again
+
+
+
+
+
+
+| Concept | Job |
+|---|---|
+| Forward pass | Make prediction |
+| Loss function | Measure error |
+| Backpropagation | Calculate gradients |
+| Gradient | Direction/magnitude of loss change |
+| Gradient descent | Update weights |
+| Learning rate | Controls update size |
+| Epoch | One complete pass through dataset |
+| Optimizer | Performs parameter updates |
+
+
+
+
+
+
+
+
+
+Neural Network Training
+INPUT
+ ↓
+FORWARD PASS
+ ↓
+PREDICTION
+ ↓
+LOSS
+ ↓
+BACKPROPAGATION
+ ↓
+GRADIENTS
+ ↓
+GRADIENT DESCENT
+ ↓
+UPDATED PARAMETERS
+ ↓
+REPEAT
+
+Gradient
+\[
+gradient=\frac{\partial Loss}{\partial parameter}
+\]
+Tells us:
+How sensitive is the loss to this parameter?
+
+Gradient descent
+\[
+parameter_{new}
+=
+parameter_{old}
+-
+learning\_rate\times gradient
+\]
+Positive gradient
+gradient > 0
+↓
+decrease parameter
+
+Negative gradient
+gradient < 0
+↓
+increase parameter
+
+Learning rate
+Too large → overshoot / unstable
+Too small → very slow
+Good      → steady convergence
+
+Backpropagation
+Loss
+ ↓
+output layer
+ ↓
+hidden layer
+ ↓
+earlier layers
+
+Calculates gradients.
+Does NOT update weights itself.
+Gradient Descent
+Uses gradients to update:
+weights
+biases
+other trainable parameters
+
+PyTorch
+loss.backward()
+
+
+→ calculate gradients
+optimizer.step()
+
+
+→ update parameters
+optimizer.zero_grad()
+
+
+→ clear old gradients
+
+
+
+
+
+
+
+| | MSE | Cross-Entropy |
+|---|---|---|
+| Main use | Regression | Classification |
+| Output | Continuous number | Class/probability |
+| Example | House price | Cat/Dog |
+| Measures | Squared numerical error | Probability-based classification error |
+| Large mistakes | Strongly penalized | Confident wrong predictions strongly penalized |
+| Typical PyTorch loss | `nn.MSELoss()` | `nn.CrossEntropyLoss()` / `nn.BCELoss()` |
+
+
+
+
+
+
+
+
+
+                 NEURAL NETWORK
+                       │
+                       ↓
+             Input Features
+                       │
+                       ↓
+                Weights + Bias
+                       │
+                       ↓
+                 Activation
+                       │
+                       ↓
+                 FORWARD PASS
+                       │
+                       ↓
+                  Prediction
+                       │
+                       ↓
+                LOSS FUNCTION
+                       │
+              ┌────────┴────────┐
+              ↓                 ↓
+             MSE          Cross-Entropy
+          Regression       Classification
+              │                 │
+              └────────┬────────┘
+                       ↓
+                BACKPROPAGATION
+                       ↓
+                   GRADIENTS
+                       ↓
+                GRADIENT DESCENT
+                       ↓
+              Updated Parameters
+                       ↓
+                  Better Model
+                  
+
+
+
+
+
+
+
+
+Loss Function
+Loss = numerical measurement of model error
+
+Purpose:
+Tell the neural network how wrong it is.
+
+Training objective:
+MINIMIZE LOSS
+
+MSE
+Formula
+MSE = average((actual - prediction)^2)
+
+Use
+Regression
+
+Examples
+House price
+Temperature
+Sales
+Revenue
+
+PyTorch
+nn.MSELoss()
+
+
+Boilerplate
+import torchimport torch.nn as nnloss_function = nn.MSELoss()predictions = torch.tensor([10.0, 20.0, 30.0])actual = torch.tensor([12.0, 18.0, 29.0])loss = loss_function(predictions, actual)
+
+
+36. Binary Cross-Entropy Cheat Sheet
+For:
+0 / 1 classification
+
+Formula:
+-[y log(p) + (1-y) log(1-p)]
+
+Where:
+y = actual label
+p = predicted probability
+
+Behavior
+Correct + confident
+        ↓
+     Low loss
+
+Wrong + confident
+        ↓
+    Huge loss
+
+37. Multi-Class Cross-Entropy
+For:
+Cat
+Dog
+Horse
+
+or:
+No Tumor
+Meningioma
+Glioma
+Pituitary
+
+Use:
+nn.CrossEntropyLoss()
+
+
+Typical setup:
+loss_function = nn.CrossEntropyLoss()logits = model(inputs)loss = loss_function(logits, labels)
+
+
+Important
+With standard PyTorch CrossEntropyLoss:
+Model → logits
+        ↓
+CrossEntropyLoss
+
+Don't manually add softmax before it for the normal classification setup.
+38. MSE vs Cross-Entropy — Memorize This
+REGRESSION
+    ↓
+Continuous number
+    ↓
+MSE
+
+CLASSIFICATION
+    ↓
+Classes / probabilities
+    ↓
+Cross-Entropy
+
+One-line memory trick
+MSE asks "How far away is my number?"
+
+Cross-Entropy asks "How confidently did I choose the wrong/right class?"
+
+
+
+
+
+
+
+
+PyTorch Tensor Cheat Sheet
+Import
+import torch
+
+
+Create tensor
+x = torch.tensor([1.0, 2.0, 3.0])
+
+
+Scalar
+x = torch.tensor(7.0)
+
+
+Vector
+x = torch.tensor([1.0, 2.0, 3.0])
+
+
+Matrix
+x = torch.tensor([    [1.0, 2.0],    [3.0, 4.0]])
+
+
+Zeros
+x = torch.zeros(2, 3)
+
+
+Ones
+x = torch.ones(2, 3)
+
+
+Random
+x = torch.rand(2, 3)
+
+
+Sequence
+x = torch.arange(0, 10)
+
+
+Shape
+x.shape
+
+
+Data type
+x.dtype
+
+Device
+x.device
+
+
+Reshape
+x.reshape(3, 2)
+
+
+Element-wise addition
+a + b
+
+
+Element-wise multiplication
+a * b
+
+
+Matrix multiplication
+a @ b
+
+
+or:
+torch.matmul(a, b)
+
+
+GPU check
+torch.cuda.is_available()
+
+
+Select device
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+Move tensor
+x = x.to(device)
+
+
+Float conversion
+x = x.float()
+
+
+Integer conversion
+x = x.long()
+
+
+Explicit dtype
+x = x.to(torch.float32)
+
+
+
+
+
+
+
+
+
+
+
+                  PYTORCH
+                     │
+                     ▼
+                  TENSOR
+                     │
+          ┌──────────┼──────────┐
+          ▼          ▼          ▼
+        Shape       Dtype     Device
+          │                     │
+          │                  CPU/GPU
+          │
+     ┌────┴─────┐
+     ▼          ▼
+Element-wise   Matrix
+ operations   multiplication
+    *,+,-       @
+                  │
+                  ▼
+             Neural Network
+                  │
+                  ▼
+              X @ W + b
+
+
+
+
+DAY 21                         DAY 22
+
+x₁w₁ + x₂w₂ + b       →       inputs @ weights + bias
+
+one neuron             →       tensor operation
+
+one example            →       batch of examples
+
+manual calculation    →       PyTorch calculation
+
+CPU/manual loops       →       GPU + parallel operations
+
+
+
+
+w1 ─────┐
+        │
+x1 ─────×───┐
+            │
+w2 ─────┐   │
+        │   ×──→ z
+x2 ─────×───┘
+            ↑
+bias ───────┘
+
+
+
+
+
+                FORWARD PASS
+                     │
+                     ▼
+            Perform operations
+                     │
+                     ▼
+          PyTorch records graph
+                     │
+                     ▼
+               Final loss
+                     │
+                     ▼
+               .backward()
+                     │
+                     ▼
+            BACKPROPAGATION
+                     │
+                     ▼
+              .grad values
+                     │
+                     ▼
+              optimizer.step()
+                     │
+                     ▼
+            Updated parameters
+
+
+
+
+
+
+
+
+
+| Day 21 concept | PyTorch |
+|---|---|
+| Weight | Tensor/parameter |
+| Bias | Tensor/parameter |
+| Forward pass | Model/tensor operations |
+| Computation chain | Computation graph |
+| Chain rule | Autograd |
+| Backpropagation | `.backward()` |
+| Gradient | `.grad` |
+| Gradient descent | `optimizer.step()` |
+| Clear old gradients | `optimizer.zero_grad()` |
+| No gradient during prediction | `torch.no_grad()` |
+
+
+
+
+
+
+Enable gradient tracking
+x = torch.tensor(3.0, requires_grad=True)
+
+
+Perform operations
+y = x ** 2
+
+
+Backpropagation
+y.backward()
+
+
+Read gradient
+x.grad
+
+
+Clear gradients
+optimizer.zero_grad()
+
+
+Disable gradient tracking
+with torch.no_grad():    output = model(x)
+
+
+Core mapping
+requires_grad=True → track parameter
+.backward()        → calculate gradients
+.grad              → gradient value
+optimizer.step()   → update parameters
+
+
+
+
+
+
+
+┌──────────────────────────┐
+│ 1. ZERO GRADIENTS        │
+└────────────┬─────────────┘
+             ↓
+┌──────────────────────────┐
+│ 2. FORWARD PASS          │
+└────────────┬─────────────┘
+             ↓
+┌──────────────────────────┐
+│ 3. CALCULATE LOSS        │
+└────────────┬─────────────┘
+             ↓
+┌──────────────────────────┐
+│ 4. BACKWARD              │
+└────────────┬─────────────┘
+             ↓
+┌──────────────────────────┐
+│ 5. OPTIMIZER STEP        │
+└──────────────────────────┘
+             │
+             └──────→ repeat
+
+
+
+
+
+
+
+
+                 INPUT
+                   ↓
+              Neural Network
+                   ↓
+              PREDICTION
+                   ↓
+             LOSS FUNCTION
+                   ↓
+                 LOSS
+                   ↓
+            loss.backward()
+                   ↓
+              GRADIENTS
+                   ↓
+          optimizer.step()
+                   ↓
+          UPDATED WEIGHTS
+                   ↓
+             next epoch
+
+
+
+
+
+
+
+| Input 1 | Input 2 | Output |
+|---:|---:|---:|
+| 0 | 0 | 0 |
+| 0 | 1 | 0 |
+| 1 | 0 | 0 |
+| 1 | 1 | 1 |
+
+
+
+
+
+
+
+
+
+
+Model
+class MyModel(nn.Module):    def __init__(self):        super().__init__()        self.layer1 = nn.Linear(input_features, hidden_features)        self.relu = nn.ReLU()        self.layer2 = nn.Linear(hidden_features, output_features)    def forward(self, x):        x = self.layer1(x)        x = self.relu(x)        x = self.layer2(x)        return x
+
+
+Create model
+model = MyModel()
+
+
+Loss
+loss_function = nn.BCEWithLogitsLoss()
+
+
+Optimizer
+optimizer = optim.SGD(    model.parameters(),    lr=0.1)
+
+
+Training
+model.train()for epoch in range(epochs):    optimizer.zero_grad()    predictions = model(inputs)    loss = loss_function(        predictions,        targets    )    loss.backward()    optimizer.step()
+
+
+Evaluation
+model.eval()with torch.no_grad():    predictions = model(inputs)
+
+
+
+
+
+
+
+
+
+
+
+                 PYTORCH
+                    │
+                    ▼
+                 TENSORS
+                    │
+                    ▼
+               MODEL LAYERS
+              nn.Linear/ReLU
+                    │
+                    ▼
+              FORWARD PASS
+                    │
+                    ▼
+               PREDICTIONS
+                    │
+                    ▼
+             LOSS FUNCTION
+                    │
+                    ▼
+                  LOSS
+                    │
+                    ▼
+              .backward()
+                    │
+                    ▼
+                AUTOGRAD
+                    │
+                    ▼
+               GRADIENTS
+                    │
+                    ▼
+             optimizer.step()
+                    │
+                    ▼
+             UPDATED WEIGHTS
+                    │
+                    ▼
+               NEXT EPOCH
+
+
+
+
+
+
+
+
+dataset/
+├── cat_001.jpg
+├── cat_002.jpg
+├── dog_001.jpg
+├── dog_002.jpg
+...
+└── 1,000,000 images
+
+
+
+
+
+
+
+
+
+
+              DATASET
+                 │
+                 │ 1000 examples
+                 ▼
+            DATA LOADER
+                 │
+       ┌─────────┼─────────┐
+       ▼         ▼         ▼
+    Batch 1   Batch 2   Batch 3 ...
+      32         32        32
+       │
+       ▼
+     MODEL
+       │
+       ▼
+  PREDICTIONS
+       │
+       ▼
+      LOSS
+       │
+       ▼
+   BACKWARD()
+       │
+       ▼
+  OPTIMIZER
+       │
+       ▼
+ UPDATE PARAMETERS
+
+
+
+
+
+
+
+
+
+
+
+ Import
+from torch.utils.data import Dataset, DataLoader
+
+
+Dataset skeleton
+class MyDataset(Dataset):
+
+    def __init__(self):
+        ...
+
+    def __len__(self):
+        return ...
+
+    def __getitem__(self, index):
+        return ...
+
+
+Create dataset
+dataset = MyDataset()
+
+
+Create DataLoader
+loader = DataLoader(
+    dataset,
+    batch_size=32,
+    shuffle=True
+)
+
+
+Training iteration
+for batch_inputs, batch_targets in loader:
+    ...
+
+
+Validation/test
+loader = DataLoader(
+    dataset,
+    batch_size=32,
+    shuffle=False
+)
+
+
+Drop incomplete batch
+drop_last=True
+
+
+Multiple workers
+num_workers=2
+
+
+
+
+
+
+
+
+
+
+                 RAW DATA
+                    │
+                    ▼
+                 Dataset
+                    │
+          ┌─────────┴─────────┐
+          │                   │
+       __len__            __getitem__
+          │                   │
+          └─────────┬─────────┘
+                    ▼
+                DataLoader
+                    │
+             batch_size=32
+                    │
+               shuffle=True
+                    │
+                    ▼
+                  BATCH
+                    │
+                    ▼
+                 MODEL
+                    │
+                    ▼
+               PREDICTION
+                    │
+                    ▼
+                  LOSS
+                    │
+                    ▼
+              .backward()
+                    │
+                    ▼
+             optimizer.step()
+
+
+
+
+
+
+
+                 DATASET
+                    ↓
+               DATALOADER
+                    ↓
+                 TENSOR
+                    ↓
+                 MODEL
+                    ↓
+               FORWARD
+                    ↓
+                  LOSS
+                    ↓
+              AUTOGRAD
+                    ↓
+                .grad
+                    ↓
+            OPTIMIZER STEP
+                    ↓
+              NEW WEIGHTS
+
+
+
+
+
+
+
+
+
+
+                 TRAINING
+                    │
+                    ▼
+               Epoch 200
+                    │
+                    ▼
+              SAVE CHECKPOINT
+                    │
+             ┌──────┴──────┐
+             │             │
+        model state    optimizer state
+             │             │
+             └──────┬──────┘
+                    │
+                    ▼
+                 DISK
+                    │
+              💻 crash
+                    │
+                    ▼
+                  LOAD
+                    │
+             ┌──────┴──────┐
+             │             │
+          model          optimizer
+             │             │
+             └──────┬──────┘
+                    ▼
+             Epoch 200
+                    │
+                    ▼
+             Continue training
+
+
+
+
+
+
+
+
+1. Create Dataset
+        ↓
+2. Create DataLoader
+        ↓
+3. Create Neural Network
+        ↓
+4. Create Loss
+        ↓
+5. Create Optimizer
+        ↓
+6. Train
+        ↓
+   zero_grad
+        ↓
+   forward
+        ↓
+   loss
+        ↓
+   backward
+        ↓
+   optimizer.step
+        ↓
+7. Save checkpoint
+        ↓
+8. Create fresh model
+        ↓
+9. Load checkpoint
+        ↓
+10. eval()
+        ↓
+11. no_grad()
+        ↓
+12. Predict
+
+
+
+
+
+
+Tensors
+x = torch.tensor(    [1., 2., 3.])
+
+
+Gradient tracking
+x = torch.tensor(    3.0,    requires_grad=True)
+
+
+Backpropagation
+loss.backward()
+
+
+Gradient
+x.grad
+
+
+Model
+class Model(nn.Module):    def __init__(self):        super().__init__()    def forward(self, x):        return x
+
+
+Linear layer
+nn.Linear(    input_features,    output_features)
+
+
+Activation
+nn.ReLU()
+
+
+Dataset
+class MyDataset(Dataset):    def __len__(self):        return len(self.data)    def __getitem__(self, index):        return self.data[index]
+
+
+DataLoader
+DataLoader(    dataset,    batch_size=32,    shuffle=True)
+
+
+Training loop
+for batch_inputs, batch_targets in loader:    optimizer.zero_grad()    predictions = model(batch_inputs)    loss = loss_function(        predictions,        batch_targets    )    loss.backward()    optimizer.step()
+
+
+Save
+torch.save(    model.state_dict(),    "model.pth")
+
+
+Load
+model = MyModel()state = torch.load(    "model.pth")model.load_state_dict(state)
+
+
+Full checkpoint
+checkpoint = {    "epoch": epoch,    "model_state_dict": model.state_dict(),    "optimizer_state_dict": optimizer.state_dict()}torch.save(    checkpoint,    "checkpoint.pt")
+
+
+Restore
+checkpoint = torch.load(    "checkpoint.pt")model.load_state_dict(    checkpoint["model_state_dict"])optimizer.load_state_dict(    checkpoint["optimizer_state_dict"])start_epoch = checkpoint["epoch"]
+
+
+Inference
+model.eval()with torch.no_grad():    prediction = model(x)
+
+
+
+
+
+
+
+
+
+
+
+                     DAY 22
+                       │
+       ┌───────────────┼────────────────┐
+       │               │                │
+       ▼               ▼                ▼
+    TENSORS          AUTOGRAD         MODEL
+       │               │                │
+       │               ▼                │
+       │           .backward()          │
+       │               │                │
+       └───────────────┼────────────────┘
+                       ▼
+                TRAINING LOOP
+                       │
+                zero_grad()
+                       ↓
+                    forward
+                       ↓
+                     loss
+                       ↓
+                   backward
+                       ↓
+                 optimizer.step
+                       │
+                       ▼
+                  DATA LOADER
+                       │
+                batches/shuffle
+                       │
+                       ▼
+                  CHECKPOINT
+                       │
+          ┌────────────┴────────────┐
+          ▼                         ▼
+      state_dict                optimizer
+          │                         │
+          └────────────┬────────────┘
+                       ▼
+                     SAVE
+                       │
+                       ▼
+                     LOAD
+                       │
+                       ▼
+                  model.eval()
+                       │
+                       ▼
+                 torch.no_grad()
+                       │
+                       ▼
+                  PREDICTION
+                       │
+                       ▼
+                 MODEL SERVING
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Part 9 — Feature extraction vs fine-tuning
+Property	Feature extraction	Fine-tuning
+Pretrained backbone	Frozen	Some or all layers train
+New classification head	Trained	Trained
+Data requirement	Often works well with smaller datasets	Usually benefits from more labeled data
+Training speed	Faster	Slower
+Overfitting risk	Generally lower on small datasets	Generally higher on small datasets
+Best starting point	Similar source and target tasks	More adaptation needed
+
+
+
+
+
+
+
+
+
+Part 10 — How do you choose?
+Case A
+Small dataset + similar task
+Start with feature extraction. Freeze the pretrained backbone and train the new head.
+
+
+Case B
+Moderate dataset + some task differences
+Consider partial fine-tuning: freeze early layers and train later layers plus the head.
+
+
+Case C
+Large dataset + substantial task differences
+Consider fine-tuning more of the model, potentially the full backbone, while monitoring validation performance.
+
+
+
+
+
+
+
+
+
+
+
+Transfer learning = reuse pretrained knowledge for a target task.
+Two strategies
+- Feature extraction: freeze backbone; train the new head.
+- Fine-tuning: unfreeze some or all pretrained layers and train them further.
+Freeze a parameter
+parameter.requires_grad = False
+
+
+
+Unfreeze a layer
+for parameter in model.layer4.parameters():    parameter.requires_grad = True
+
+
+
+Replace the final ResNet18 head
+model.fc = nn.Linear(    model.fc.in_features,    num_classes)
+
+
+
+Use pretrained preprocessing
+weights = models.ResNet18_Weights.DEFAULTpreprocess = weights.transforms()
+
+
+
+Different learning rates
+optimizer = optim.SGD(    [        {"params": model.layer4.parameters(), "lr": 0.0001},        {"params": model.fc.parameters(), "lr": 0.01}    ],    momentum=0.9)
+
+
+
+
+
+
+
+
+
+
+
+
+PRETRAINED MODEL
+      │
+      ▼
+Reuse learned weights
+      │
+      ├── Feature extraction
+      │      ├── Freeze backbone
+      │      └── Train new head
+      │
+      └── Fine-tuning
+             ├── Unfreeze selected layers
+             ├── Use suitable learning rates
+             └── Train on target data
+                       │
+                       ▼
+               Validate performance
+                       │
+                       ▼
+                Save checkpoint
+                       │
+                       ▼
+                 Model serving
+
+
+
+
+
+
+
+
+
+Part 6 — Complete strategy decision table
+Dataset size	Source/target similarity	Reasonable starting strategy
+Small	Similar	Feature extraction
+Large	Similar	Feature extraction or fine-tuning later layers
+Large	Different	Fine-tune later or most layers
+Small	Different	Difficult case: partial fine-tuning, augmentation, or a closer pretrained source
+
+
+
+
+
+
+Property	Training	Inference	Model serving
+Main purpose	Learn parameters	Generate predictions	Make predictions available to consumers
+Input	Training examples and labels	New input data	Requests or collected records
+Weight updates	Yes	No	Normally no
+Gradients	Needed for training	Usually unnecessary	Usually disabled for inference
+Main engineering concern	Learning quality and convergence	Prediction correctness	Reliability, latency, throughput and availability
+Example	Train a disease classifier	Predict for one patient	Expose that classifier to a hospital application
+
+
+
+
+
+
+
+
+Avoid full fine-tuning by default when:
+- The target dataset is very small.
+- Validation performance indicates overfitting.
+- Compute or GPU memory is insufficient.
+- The pretrained model's domain is poorly matched to the target task.
+Monitor overfitting
+- Training loss decreases while validation loss rises: possible overfitting.
+- Save the best validation checkpoint.
+- Try freezing more layers or reducing the learning rate.
+Small dataset improvements
+- Feature extraction.
+- Appropriate data augmentation.
+- Partial fine-tuning if needed.
+- A pretrained model from a closer domain.
+Always check
+- Expected image preprocessing.
+- Number of examples per class.
+- Validation results.
+- Model and dataset licenses.
+
+
+
+
+
+
+
+Definition
+Model serving makes a trained model available to applications so they can send input and receive predictions reliably.
+The essential pipeline
+Train → Save checkpoint → Load model → Validate input → Inference → Return prediction
+Key differences
+- Training updates weights.
+- Inference generates predictions without updating weights.
+- Serving provides the surrounding system through which inference is accessed.
+PyTorch inference pattern
+model.load_state_dict(state_dict)model.eval()with torch.no_grad():    prediction = model(input_tensor)
+
+
+
+Three serving patterns
+- Online: individual, latency-sensitive requests.
+- Batch: many records processed together.
+- On-device: model runs on the user's device.
+Important terms
+- Checkpoint: saved model parameters and possibly training state.
+- Endpoint: an interface for requesting predictions.
+- Latency: time to return a response.
+- Throughput: number of requests or records processed per unit time.
+- Scalability: ability to handle changing workload.
+Remember: serving doesn't normally retrain the model. It uses the learned parameters to produce predictions.
+
+
+
+
+
+
+
+
+
+Approach	What gets saved?	Need original Python architecture to load?	Main use
+state_dict	Learned parameters and registered buffers	Yes, recreate a compatible architecture	Common, flexible model checkpointing
+Entire object with torch.save(model, ...)	Python model object and associated serialized state	Usually yes; its class and environment matter	Convenience in controlled Python environments
+TorchScript	Serialized model computation and parameters	Not the original Python model class	Historically useful for Python-independent deployment targets
+
+
+
+
+
+
+
+
+
+Term	Remember
+Batch inference	Predict for a large, collected dataset
+Latency	Time for an individual response
+Throughput	Records processed per unit time
+Vectorization	Process multiple records together using tensor operations
+PySpark UDF	Apply custom logic across a Spark DataFrame
+Pandas UDF	Apply vectorized logic to batches of rows
+model.eval()	Switch to evaluation behavior
+torch.no_grad()	Avoid tracking gradients during inference
