@@ -1,0 +1,1539 @@
+================================================================================
+         COMPREHENSIVE DATA MODELING & DATA WAREHOUSING MASTER NOTES
+================================================================================
+Curriculum: KMIT Talent Accelerator Program (TAP) 2026
+Coverage  : Week 2 (F1 - End) through Week 3 Full (Days 11 - 16 Capstone)
+Author    : Google Antigravity Advanced Agentic AI
+Target    : Beginner (ELI5) to Senior Data Architect / Interview-Ready Master
+Code File : c:\Users\Abhiram Chittampally\Documents\ACC\Data_modelling\dm.sql
+Notes File: c:\Users\Abhiram Chittampally\Documents\ACC\Data_modelling\DM.txt
+================================================================================
+
+
+TABLE OF CONTENTS
+================================================================================
+PART I: WEEK 2 - DATA MODELING FOUNDATIONS & KIMBALL CORE
+--------------------------------------------------------------------------------
+1. Module F1: What is a Data Warehouse?
+   - 1.1 Explain Like I'm 5: The Toy Box vs The Giant Toy Library
+   - 1.2 Why Data Warehouses Exist & Reporting Pain Points
+   - 1.3 Core Characteristics of a Data Warehouse (Inmon's Definition)
+   - 1.4 Inmon vs Kimball: The Two Founding Philosophies
+   - 1.5 Modern Cloud Data Warehouses (Snowflake, BigQuery, Redshift, Databricks)
+   - 1.6 Visual Architecture Diagram: Operational Systems to Enterprise Warehouse
+   - 1.7 Exam & Interview Master Tip
+
+2. Module F2: OLTP vs OLAP - Two Different Worlds
+   - 2.1 Explain Like I'm 5: The Fast-Food Drive-Through vs The Royal Wedding Feast
+   - 2.2 The Six Fundamental Axes of Difference
+   - 2.3 Row-Oriented Storage vs Column-Oriented Storage Physics
+   - 2.4 Visual Work Diagram: Row vs Columnar Block Storage on Disk
+   - 2.5 Code Demonstration: OLTP Point Lookup vs OLAP Aggregate Scan
+   - 2.6 Hybrid Transactional/Analytical Processing (HTAP)
+
+3. Module F3: Why Denormalize for Analytics?
+   - 3.1 Normalization in 3 Minutes (1NF, 2NF, 3NF Recap)
+   - 3.2 Why 3NF Chokes Analytical Queries (The Join Explosion Problem)
+   - 3.3 Denormalization Mechanics & Trade-offs
+   - 3.4 Star Schema vs One Big Table (OBT)
+   - 3.5 Visual Comparison: Normalized 3NF Graph vs Denormalized Star Schema
+   - 3.6 Code Walkthrough: 5-Way 3NF Join vs 2-Way Star Join
+
+4. Module F4: Natural Keys vs Surrogate Keys
+   - 4.1 Explain Like I'm 5: Nicknames vs Aadhaar / Social Security Numbers
+   - 4.2 What is a Natural Key and Why Does It Break?
+   - 4.3 What is a Surrogate Key and Why Do Warehouses Insist on It?
+   - 4.4 Auto-Increment BIGINT vs UUID v4 vs UUID v7
+   - 4.5 Enterprise Naming Standards (`_key` vs `_id`)
+   - 4.6 Visual Diagram: Key Pipeline Decoupling Source Systems from Warehouse
+   - 4.7 Code Walkthrough: Dimension Table with Both Keys
+
+5. Module 4.1a: Kimball Dimensional Modeling - Facts & Dimensions
+   - 5.1 Explain Like I'm 5: The Measurements and Their Stories
+   - 5.2 Fact Tables: The Numeric Heartbeat of the Business
+   - 5.3 Dimension Tables: The Rich Descriptive Context
+   - 5.4 Head-to-Head Comparison Matrix
+   - 5.5 Visual Diagram: The Classic Kimball Star Architecture
+   - 5.6 Code Walkthrough: Minimal Retail Star Schema
+
+6. Module 4.1b: Kimball - The Sacred Grain
+   - 6.1 Explain Like I'm 5: Photo Resolution (4K vs Thumbnail)
+   - 6.2 The Grain Statement: The Pivot of Every Downstream Decision
+   - 6.3 Three Grain Levels for the Same Business Process
+   - 6.4 Visual Pyramid: The Grain Resolution Pyramid (Atomic vs Summary)
+   - 6.5 The Golden Rule: Prefer the Finest Atomic Grain You Can Afford
+   - 6.6 The Deadliest Sin: Mixed Grain in One Fact Table
+
+7. Module 4.1c: Conformed Dimensions & The Bus Architecture Intro
+   - 7.1 What is a Conformed Dimension?
+   - 7.2 Why Conformance Prevents Corporate Data Chaos
+   - 7.3 Cross-Fact Analysis & The Drill-Across Mechanism
+   - 7.4 The Kimball Bus Matrix Grid
+   - 7.5 Visual Grid: Kimball Enterprise Bus Matrix
+   - 7.6 Code Walkthrough: Cross-Fact Sales & Support Ratio
+
+8. Module 4.2a, 4.2b, 4.2c: Slowly Changing Dimensions (SCD)
+   - 8.1 The Core Dilemma: Real-World Entities Change Over Time
+   - 8.2 "As-Was" vs "As-Is" Reporting: The Priya Move Scenario
+   - 8.3 SCD Type 0: Retain Original (Immutable Attributes)
+   - 8.4 SCD Type 1: Overwrite (Zero History)
+   - 8.5 SCD Type 2: Add New Row with Versioning (The Industry Workhorse)
+   - 8.6 SCD Type 3: Add Previous Value Column
+   - 8.7 SCD Type 6: The Hybrid Master (1 + 2 + 3)
+   - 8.8 The 3-Question SCD Decision Tree
+   - 8.9 Visual Timeline: SCD Type 2 Lifecycle & Version History
+   - 8.10 Code Walkthrough: Priya Moves Across 2026 (Full SQL & Reports)
+
+9. Module 4.3a & 4.3b: Star Schema vs Snowflake Schema
+   - 9.1 Anatomy of a Star Schema (Denormalized Radial Layout)
+   - 9.2 Anatomy of a Snowflake Schema (Normalized Sub-Dimensions)
+   - 9.3 Head-to-Head Trade-off Matrix
+   - 9.4 When to Pick Star vs Snowflake (Decision Framework)
+   - 9.5 The Galaxy (Fact Constellation) Schema
+   - 9.6 Visual Diagram: Star vs Snowflake vs Galaxy Architecture
+   - 9.7 Code Walkthrough: Converting Star to Snowflake and Back
+
+10. Module 4.4a & 4.4b: Data Warehouse vs Data Lake vs Lakehouse
+    - 10.1 The Three Layers of Every Analytics Stack (Storage, Metadata, Compute)
+    - 10.2 Data Warehouse: Strengths, Weaknesses, Best Fit
+    - 10.3 Data Lake: Cheap Object Storage & The Data Swamp Hazard
+    - 10.4 The Lakehouse: ACID, Time Travel & Open Formats
+    - 10.5 Open Table Formats: Delta Lake vs Apache Iceberg vs Apache Hudi
+    - 10.6 The Medallion Architecture: Bronze, Silver, Gold
+    - 10.7 Visual Flowchart: Medallion Data Quality Pipeline
+    - 10.8 Decision Framework for Selecting Modern Storage
+
+11. Module 4.5: Feature Store Modeling for Machine Learning
+    - 11.1 Why Traditional Warehouses Fall Short for ML
+    - 11.2 Dual-Store Architecture: Offline Store vs Online Store
+    - 11.3 Point-In-Time (PIT) Correctness: Preventing Future Data Leakage
+    - 11.4 Train-Serve Skew: The Silent Model Killer
+    - 11.5 Entity-Feature Design & Naming Convention
+    - 11.6 Feature Groups, Freshness SLAs & Materialization
+    - 11.7 Visual Diagram: Dual-Store Architecture & PIT Join Flow
+    - 11.8 Code Walkthrough: Customer Churn Feature Store & PIT Join
+
+12. Week 2 Capstone Labs:
+    - 12.1 Lab 1: Guided Design Lab - Mango Mart Star Schema
+    - 12.2 Lab 2: Top-10 Production Analytics SQL on the Star
+
+--------------------------------------------------------------------------------
+PART II: WEEK 3 - DIMENSIONAL MODELING DEEP DIVE
+--------------------------------------------------------------------------------
+13. Day 11 (Monday): Fact Table Mastery
+    - 13.1 M1: The Three Canonical Fact Table Types
+      * Transaction Fact Table
+      * Periodic Snapshot Fact Table
+      * Accumulating Snapshot Fact Table
+    - 13.2 Visual Diagram: Row Lifecycle Comparison across Fact Types
+    - 13.3 M2: The Math of Aggregation (Additive, Semi-Additive, Non-Additive)
+      * Visual Matrix: The Aggregation Safety Matrix
+      * Why Storing Margin % in Fact Tables is a Catastrophe
+    - 13.4 M3: Factless Fact Tables (Event Tracking & Coverage Patterns)
+      * Visual Diagram: Event Tracking vs Coverage Pattern
+    - 13.5 M4: Degenerate Dimensions (Keys Without Dimensions)
+      * Visual Diagram: Correct vs Incorrect Column Placement
+    - 13.6 M5: Junk Dimensions (Cartesian Product Consolidation of Flags)
+      * Visual Flowchart: Fact Table Width Reduction via Junk Dim
+
+14. Day 12 (Tuesday): Advanced Dimension Techniques
+    - 14.1 T1: Role-Playing Dimensions (Views vs Query Aliases)
+      * Visual Diagram: One Physical Table, Three Logical Roles
+    - 14.2 T2: Bridge Tables for Many-to-Many Relationships
+      * Visual Diagram: Fact -> Bridge -> Dimension with Weight Allocation
+    - 14.3 T3: Hierarchies in Dimensions (Fixed-Depth, Ragged, Recursive)
+      * Visual Diagram: Fixed vs Ragged vs Recursive Org Chart
+    - 14.4 T4: Date and Time Dimensions (Fiscal Calendar & Relative Periods)
+    - 14.5 T5: Mini-Dimensions (Solving Type 2 Row Explosion)
+      * Visual Diagram: Splitting Fast-Changing Demographic Profile
+
+15. Day 13 (Wednesday): Enterprise Data Marts & The Kimball Bus Matrix
+    - 15.1 W1: Data Marts: Dependent vs Independent Silos
+      * Visual Diagram: Integration Contract vs Departmental Silo
+    - 15.2 W2: The Kimball Enterprise Bus Matrix Blueprint
+    - 15.3 W3: Retail Data Modeling Lab (Sales + Inventory + Returns)
+    - 15.4 W4: E-Commerce Modeling Lab (Clickstream, Sessions, Orders, Abandonment)
+      * Visual Diagram: E-Commerce 4-Grain User Journey Funnel
+    - 15.5 W5: Cross-Domain Mapping: Healthcare & Finance
+
+16. Day 14 (Thursday): Building & Loading the Model (ETL Mechanics)
+    - 16.1 H1: SCD Type 2 Full Implementation with Two-Step SQL MERGE
+      * Visual Flowchart: SCD Type 2 Two-Step MERGE Process
+    - 16.2 H2: Surrogate Key Pipelines & Source Decoupling
+    - 16.3 H3: Late-Arriving Dimensions (Placeholders & Back-Updates)
+      * Visual Lifecycle: Placeholder Creation to Real Back-Update
+    - 16.4 H4: Slowly Changing Facts & The Negating Entry Reversal Pattern
+      * Visual Diagram: Destructive Delete vs Negating Entry Pattern
+    - 16.5 H5: Five-Rule Data Quality Validation Framework
+      * Visual Flowchart: Five-Rule Staging DQ Gate & Routing
+
+17. Day 15 (Friday): End-to-End Design & Interview Readiness
+    - 17.1 F1: End-to-End Warehouse Design Workflow (From Question to Physical DDL)
+    - 17.2 F2: Sales Analytics Dataset Patterns
+    - 17.3 F3: Customer Analytics (RFM Segmentation, Retention Curves, LTV)
+    - 17.4 F4: The Six Deadly Dimensional Modeling Mistakes & Interview Traps
+    - 17.5 F5: The Whiteboard Design Interview Protocol
+      * Visual Flowchart: 6-Step Whiteboard Protocol
+
+18. Week 3 Capstone Lab & Production Architecture Checklist
+    - 18.1 Complete Mango Mart Physical Implementation Review
+    - 18.2 Production Senior Architect Checklist
+================================================================================
+
+
+================================================================================
+PART I: WEEK 2 - DATA MODELING FOUNDATIONS & KIMBALL CORE
+================================================================================
+
+--------------------------------------------------------------------------------
+MODULE F1: WHAT IS A DATA WAREHOUSE?
+--------------------------------------------------------------------------------
+
+1.1 EXPLAIN LIKE I'M 5: THE TOY BOX VS THE GIANT TOY LIBRARY
+Imagine your bedroom floor has a small toy box. Whenever you want to play, you grab 
+a car, dump out some blocks, and throw them back in when you're done. That toy box 
+needs to be super fast to open and close so your room doesn't stay messy. That is 
+your transactional database (OLTP) - built for quick, everyday playing.
+
+Now imagine the mayor of your entire city wants to know: "How many red fire trucks 
+did all children in the city play with every Saturday morning over the last five 
+years?" If someone tried digging through thousands of messy toy boxes in every house 
+at the same time, children wouldn't be able to play, toys would get lost, and everyone 
+would get angry!
+
+Instead, the city builds a Giant Toy Library (The Data Warehouse). Every night, a 
+delivery truck makes a copy of the day's toy records and places them neatly into 
+huge, organized shelves labeled by Year, Month, Toy Type, and Neighborhood. 
+Children keep playing at home uninterrupted, while researchers and city planners sit 
+comfortably in the quiet library reading five years of history in seconds.
+
+
+1.2 WHY DATA WAREHOUSES EXIST & THE REPORTING PAIN THEY SOLVE
+In any growing company, multiple operational software systems run the day-to-day 
+business:
+1. An e-commerce web app running PostgreSQL.
+2. A payment processing system like Stripe.
+3. A CRM like Salesforce for tracking customer leads.
+4. An ERP like SAP for inventory and supply chain tracking.
+
+If a Business Analyst runs a massive report like:
+"Calculate our company-wide net profit margin by product category across all stores 
+over the last 4 years grouped by fiscal quarter"
+directly against the live production app database, catastrophic problems occur:
+- Lock Contention: The report scans millions of rows, acquiring read locks on 
+  tables. Real customers attempting to check out experience database timeouts.
+- Siloed Data: Stripe knows about payments, Salesforce knows about customers, 
+  and Postgres knows about orders. You cannot write a single SQL query joining 
+  three completely separate databases hosted by different cloud vendors.
+- Lack of History: Production databases frequently overwrite status columns 
+  (e.g., changing order_status from 'PENDING' to 'SHIPPED'). Past states are erased.
+
+A Data Warehouse solves this by extracting data from all operational systems, 
+transforming it into a uniform structure, and loading it into a centralized, 
+read-optimized analytical repository.
+
+
+1.3 CORE CHARACTERISTICS OF A DATA WAREHOUSE (INMON'S DEFINITION)
+William H. Inmon, known as the "Father of Data Warehousing", defined a Data 
+Warehouse along four immutable characteristics:
+
+1. Integrated:
+   - Data comes from disparate systems with conflicting formats.
+   - Example: System A encodes gender as 'M'/'F', System B as 1/0, and System C 
+     as 'Male'/'Female'. In the warehouse, it is cleansed and harmonized into one 
+     standard format across all tables.
+
+2. Subject-Oriented:
+   - Operational systems are organized around processes (e.g., Billing App, Order 
+     Form, Shipping Portal).
+   - Data warehouses are organized around core business entities (e.g., Customer, 
+     Product, Sales, Inventory).
+
+3. Time-Variant:
+   - Operational systems show current state ("What is customer Priya's address right 
+     now?").
+   - Warehouses preserve historical snapshots ("Where did Priya live when she bought 
+     that television three years ago?"). Every record is tied to time.
+
+4. Non-Volatile:
+   - Operational data is continuously inserted, updated, and deleted.
+   - Warehouse data is loaded in bulk (batch or streaming append) and is never 
+     updated in place or deleted during regular operations. Once written, history is 
+     immutable.
+
+
+1.4 INMON VS KIMBALL: THE TWO FOUNDING PHILOSOPHIES
+In data engineering history, two legendary architectures emerged:
+
+A. Bill Inmon (Top-Down "Corporate Information Factory" - CIF):
+   - Approach: Build an enterprise-wide, fully normalized (3NF) relational warehouse 
+     first, modeling the entire enterprise data model.
+   - Then, derive departmental "Data Marts" from this single central hub.
+   - Pros: Pristine data integrity, zero redundancy.
+   - Cons: Massive upfront time (often took 2–3 years before a single dashboard was 
+     delivered), exorbitant cost, very difficult for non-technical analysts to query.
+
+B. Ralph Kimball (Bottom-Up "Dimensional Bus Architecture"):
+   - Approach: Build subject-focused Dimensional Star Schemas (Data Marts) directly 
+     from business processes (e.g., Retail Sales first, then Inventory, then Returns).
+   - Integration across marts is achieved not via 3NF tables, but via shared 
+     "Conformed Dimensions" (like a shared Customer and Date dimension) governed by 
+     an enterprise Bus Matrix.
+   - Pros: Delivers value in weeks, simple for BI tools to query, intuitive for 
+     humans to understand.
+   - Why Kimball Won: Today's modern data stacks overwhelmingly follow Kimball's 
+     dimensional vocabulary (Facts, Dimensions, Grain, Bus Matrix).
+
+
+1.5 MODERN CLOUD DATA WAREHOUSES (2026 ECOSYSTEM)
+Modern cloud data warehouses have evolved beyond classic on-premise appliances:
+- Snowflake: Cloud-native, completely separates storage (S3/GCS/Azure blob) from 
+  compute (Virtual Warehouses). Elastic scaling in seconds.
+- Google BigQuery: Serverless, SQL-native, columnar storage (Capacitor), charges 
+  by query scan bytes or flat-rate slots.
+- Amazon Redshift: Mature AWS-native MPP (Massively Parallel Processing) warehouse, 
+  utilizing Redshift Serverless and AQUA acceleration.
+- Databricks SQL: High-performance SQL engine built directly on open lakehouse 
+  formats (Delta Lake).
+
+
+1.6 VISUAL ARCHITECTURE DIAGRAM: OPERATIONAL SYSTEMS TO ENTERPRISE WAREHOUSE
+
+  OPERATIONAL SYSTEMS (OLTP)            DATA INTEGRATION               ANALYTICAL PLATFORM (OLAP)
+  ==========================            ================               ==========================
+  +-----------------------+
+  |  E-Commerce App (DB)  | --+
+  |  (Postgres: Orders)   |   |
+  +-----------------------+   |
+                              |
+  +-----------------------+   |        +---------------+              +--------------------------+
+  |  Stripe Payments API  | --+------> |    ETL / ELT  | -----------> | ENTERPRISE DATA WAREHOUSE|
+  |  (JSON webhooks)      |   |        | (Airflow/dbt) |              | (Snowflake/BigQuery/Lake)|
+  +-----------------------+   |        +---------------+              +--------------------------+
+                              |                                                    |
+  +-----------------------+   |                                                    v
+  |  Salesforce CRM       | --+                                       +--------------------------+
+  |  (Customers / Leads)  |   |                                       | BUSINESS INTELLIGENCE    |
+  +-----------------------+   |                                       | (Power BI / Tableau / ML)|
+                              |                                       +--------------------------+
+  +-----------------------+   |
+  |  SAP Supply Chain ERP | --+
+  |  (Warehouse Inventory)|
+  +-----------------------+
+
+
+1.7 EXAM & INTERVIEW MASTER TIP
+Interview Classic Question: "What is a Data Warehouse, and how does it differ from 
+an operational database?"
+Winning Answer:
+"An operational database (OLTP) is optimized for high-frequency, low-latency single-row 
+transactions (reads and writes) that keep an application running. A Data Warehouse 
+(OLAP) is an integrated, subject-oriented, time-variant, and non-volatile store 
+optimized for complex analytical scans and historical aggregations across millions 
+of rows without affecting production performance."
+
+
+--------------------------------------------------------------------------------
+MODULE F2: OLTP VS OLAP - TWO DIFFERENT WORLDS
+--------------------------------------------------------------------------------
+
+2.1 EXPLAIN LIKE I'M 5: DRIVE-THROUGH VS WEDDING FEAST
+- OLTP is like a McDonald's drive-through window:
+  Thousands of cars arrive every day. Each car orders 2 burgers and 1 drink. The 
+  order takes 10 seconds. The cashier only cares about one car at a time.
+- OLAP is like catering a 1,000-person wedding reception:
+  You don't serve one French fry every 10 seconds. You spend hours preparing giant 
+  vats of food, analyzing exactly how many total kilograms of rice and potatoes 
+  you need, and serving everyone all at once.
+
+If you asked the McDonald's drive-through cashier to cook a banquet dinner for 500 
+people right now in the drive-through lane, the entire line of cars would honk, 
+freeze, and crash. You must never run OLAP queries on an OLTP database!
+
+
+2.2 THE SIX FUNDAMENTAL AXES OF DIFFERENCE
+
++--------------------+-----------------------------+-----------------------------+
+| Axis               | OLTP (Online Transaction)   | OLAP (Online Analytical)    |
++--------------------+-----------------------------+-----------------------------+
+| 1. Query Size      | 1 to 50 rows per query      | Millions to billions of rows|
+| 2. Latency Needs   | Sub-second (5ms - 50ms)     | Seconds to minutes          |
+| 3. Write Pattern   | Constant small row writes   | Periodic bulk/batch loads   |
+| 4. Schema Style    | Normalized (3NF)            | Denormalized (Star/Snowflake|
+| 5. Storage Layout  | Row-oriented (Postgres/MySQL| Column-oriented (Snowflake/ |
+|                    |                             | Parquet/BigQuery)           |
+| 6. Concurrent Users| Thousands to millions       | Dozens to hundreds          |
++--------------------+-----------------------------+-----------------------------+
+
+
+2.3 ROW-ORIENTED STORAGE VS COLUMN-ORIENTED STORAGE PHYSICS
+Why are row-oriented databases terrible for analytics, and why are columnar stores 
+unbeatable?
+
+A. Row-Oriented Storage (PostgreSQL, MySQL, Oracle):
+   Data on disk is stored row after row:
+   [Row 1: ID, Date, Customer, Product, Price, Address, Description]
+   [Row 2: ID, Date, Customer, Product, Price, Address, Description]
+   
+   If your query is:
+   `SELECT SUM(Price) FROM fact_sales;`
+   A row-store must read EVERY BYTE of Row 1 (including Address, Description, etc.) 
+   into RAM just to grab the Price column, then read all of Row 2, and so on. Disk I/O 
+   explodes, thrashing memory cache.
+
+B. Column-Oriented Storage (Snowflake, BigQuery, Parquet):
+   Data is stored column after column:
+   [ID Column: 1, 2, 3, ...]
+   [Price Column: 50.00, 120.00, 35.00, ...]
+   [Address Column: 'Street A', 'Street B', ...]
+   
+   When `SELECT SUM(Price)` runs:
+   1. The engine reads ONLY the Price column blocks from disk. The Address and 
+      Description blocks are never touched! Disk I/O drops by 80%–95%.
+   2. Columnar Compression: Because all values in a column share the exact same 
+      data type (e.g., thousands of integers or repeated category names), algorithms 
+      like Run-Length Encoding (RLE) and Dictionary Compression compress data by 
+      5x to 10x.
+   3. Vectorization: Modern CPUs can process arrays of column numbers in single-cycle 
+      SIMD (Single Instruction, Multiple Data) operations.
+
+
+2.4 VISUAL WORK DIAGRAM: ROW VS COLUMNAR BLOCK STORAGE ON DISK
+
+  ROW-ORIENTED STORAGE (OLTP - Postgres/MySQL)
+  -------------------------------------------
+  Block 1: [Row 1: ID=1, Date='2026-10-01', SKU='A', Price=10.00, PII='John Doe', Addr='123 Elm St']
+  Block 2: [Row 2: ID=2, Date='2026-10-01', SKU='B', Price=25.00, PII='Jane Doe', Addr='456 Oak St']
+  --> Querying `SUM(Price)` must scan 100% of all data blocks including unwanted strings and PII!
+
+  COLUMN-ORIENTED STORAGE (OLAP - Snowflake/Parquet)
+  --------------------------------------------------
+  File Block 1 (IDs):    [ 1, 2, 3, 4, 5, 6, 7, ... ]
+  File Block 2 (Dates):  [ '2026-10-01', '2026-10-01', ... ]
+  File Block 3 (Prices): [ 10.00, 25.00, 15.50, ... ]  <-- ONLY this block is read for `SUM(Price)`!
+  File Block 4 (PII):    [ 'John Doe', 'Jane Doe', ... ] (SKIPPED ENTIRELY)
+  --> Disk I/O reduced by 90%+; identical data types compress 10x with RLE and dictionary encoding.
+
+
+2.5 CODE DEMONSTRATION: OLTP VS OLAP QUERIES
+
+-- OLTP Point Query (Targeted, single-row retrieval):
+SELECT p.product_name, ci.quantity, ci.unit_price
+FROM cart_item ci
+JOIN product p ON p.product_id = ci.product_id
+WHERE ci.cart_id = 98421;
+
+-- OLAP Aggregate Query (Scans millions of rows over time):
+SELECT 
+    p.category_name,
+    d.year,
+    SUM(f.line_revenue) AS category_revenue,
+    COUNT(DISTINCT f.customer_key) AS unique_buyers
+FROM olap.fact_sales f
+JOIN olap.dim_product p ON f.product_key = p.product_key
+JOIN olap.dim_date d ON f.order_date_key = d.date_key
+WHERE d.year = 2026
+GROUP BY p.category_name, d.year
+ORDER BY category_revenue DESC;
+
+
+2.6 HYBRID TRANSACTIONAL/ANALYTICAL PROCESSING (HTAP)
+Modern database engines (e.g., Google AlloyDB, TiDB, SingleStore, Snowflake Unistore) 
+attempt to bridge this divide by storing data in both row format (in memory for fast 
+writes) and columnar format (asynchronously converted for analytics). However, for 
+enterprise-scale analytics, dedicated warehouses remain the golden standard.
+
+
+--------------------------------------------------------------------------------
+MODULE F3: WHY DENORMALIZE FOR ANALYTICS?
+--------------------------------------------------------------------------------
+
+3.1 NORMALIZATION IN 3 MINUTES (1NF, 2NF, 3NF RECAP)
+Normalization organizes data to eliminate duplicate information and prevent update 
+anomalies in write-heavy application databases.
+
+1. First Normal Form (1NF) - Atomic Values & No Repeating Groups:
+   - Bad: Storing comma-separated strings like `products = 'Laptop,Mouse,Headphones'`.
+   - Good: Every cell contains exactly one scalar value; each row is unique.
+
+2. Second Normal Form (2NF) - 1NF + Full Functional Dependency:
+   - Applies to tables with composite primary keys (e.g., order_id + product_id).
+   - Rule: Every non-key column must depend on the WHOLE primary key, not just half 
+     of it. If product_name depends only on product_id, it must move to its own 
+     Product table.
+
+3. Third Normal Form (3NF) - 2NF + No Transitive Dependencies:
+   - Rule: Non-key columns must depend SOLELY on the primary key, and NOT on another 
+     non-key column.
+   - Bad: Table `orders` has columns `customer_id`, `customer_city`, `customer_state`.
+     `customer_state` depends on `customer_city`, which depends on `customer_id`.
+   - Good: Split into `orders` (referencing `customer_id`) and `customers` 
+     (containing `city` and `state`).
+
+
+3.2 WHY 3NF CHOKES ANALYTICAL QUERIES
+In a normalized 3NF database, a simple e-commerce order is fractured across 8 tables:
+`orders` -> `order_items` -> `products` -> `subcategories` -> `categories` -> 
+`departments` -> `customers` -> `cities` -> `states` -> `countries`.
+
+When a business analyst writes a query to calculate quarterly revenue by department:
+1. The database optimizer must construct a complex 8-way hash join graph.
+2. Huge hash tables are built in RAM for each intermediate join.
+3. If table statistics are slightly outdated, the query optimizer picks the wrong 
+   join order, spilling gigabytes of data to disk and causing query execution to 
+   grind to a halt.
+
+
+3.3 DENORMALIZATION MECHANICS & TRADE-OFFS
+Denormalization is the deliberate re-introduction of redundancy for read speed:
+- In dimensional modeling, we collapse the `products`, `subcategories`, 
+  `categories`, and `departments` tables into a SINGLE wide `dim_product` table!
+- Instead of joining 4 tables, the query joins only ONE table (`fact_sales` to 
+  `dim_product`).
+
+Trade-offs of Denormalization:
+- What we gain:
+  1. Fewer Joins: 8-way join becomes a 2-way join.
+  2. Query Simplicity: Business analysts don't need to know 20 tables to write SQL.
+  3. Lightning Speed: Columnar engines compress repeated strings effortlessly.
+- What we pay:
+  1. Redundant Storage: The category name 'Electronics' is duplicated across 10,000 
+     product rows. (Storage is cheap in 2026, analyst time is expensive!)
+  2. Update Complexity: Updating a category name requires updating multiple rows. 
+     (In warehouses, this is handled gracefully by batch ETL and SCD techniques).
+
+
+3.4 STAR SCHEMA VS ONE BIG TABLE (OBT)
+Two primary analytical denormalization patterns exist:
+1. Star Schema (Kimball): Fact table in the center surrounded by a handful of wide 
+   dimension tables. Preserves modularity, allows conformed dimension sharing.
+2. One Big Table (OBT): The extreme form of denormalization where ALL dimensions 
+   and facts are flattened into a single, massive 100-column table. Popularized in 
+   BigQuery/ClickHouse for simple BI queries, but difficult to maintain when business 
+   processes expand.
+
+
+3.5 VISUAL COMPARISON: NORMALIZED 3NF GRAPH VS DENORMALIZED STAR SCHEMA
+
+  NORMALIZED 3NF (OLTP)                       DENORMALIZED STAR SCHEMA (OLAP)
+  =====================                       ===============================
+  [Customer] <----+                          +---------------+     +---------------+
+      |           |                          | dim_customer  |     |  dim_product  |
+      v           |                          +---------------+     +---------------+
+  [Address]       |                                  \             /
+      |           |                                   v           v
+      v           |                               +-------------------+
+    [City]        |                               |  fact_order_line  |
+      |           |                               +-------------------+
+      v           |                                   ^           ^
+   [Country]      |                                  /             \
+                  |                          +---------------+     +---------------+
+  [Order] --------+                          |   dim_date    |     |   dim_store   |
+      |                                      +---------------+     +---------------+
+      v
+  [Order_Line]                                 * All joins are 1 hop from center
+      |                                        * Category & Brand flattened into dim_product
+      v                                        * City & Country flattened into dim_customer
+  [Product] -> [Category] -> [Department]
+
+
+3.6 CODE WALKTHROUGH: 3NF JOIN VS STAR SCHEMA JOIN
+
+-- NORMALIZED 3NF QUERY (5 Joins - Fragile & Slow):
+SELECT 
+    cat.category_name,
+    SUM(ol.quantity * ol.unit_price) AS total_revenue
+FROM oltp.order_lines ol
+JOIN oltp.orders o ON ol.order_id = o.order_id
+JOIN oltp.products p ON ol.product_id = p.product_id
+JOIN oltp.categories cat ON p.category_id = cat.category_id
+JOIN oltp.customers c ON o.customer_id = c.customer_id
+WHERE o.order_date >= '2026-01-01'
+GROUP BY cat.category_name;
+
+-- DENORMALIZED STAR SCHEMA QUERY (2 Joins - Robust & Fast):
+SELECT 
+    p.category_name,
+    SUM(f.line_revenue) AS total_revenue
+FROM olap.fact_sales f
+JOIN olap.dim_product p ON f.product_key = p.product_key
+JOIN olap.dim_date d ON f.order_date_key = d.date_key
+WHERE d.year = 2026
+GROUP BY p.category_name;
+
+
+--------------------------------------------------------------------------------
+MODULE F4: NATURAL KEYS VS SURROGATE KEYS
+--------------------------------------------------------------------------------
+
+4.1 EXPLAIN LIKE I'M 5: NICKNAMES VS SOCIAL SECURITY NUMBERS
+A Natural Key is like your nickname on the school playground: "Speedy". It makes 
+sense to your friends today. But next year you break your leg, you don't run fast 
+anymore, and everyone forgets that nickname! Or a new kid arrives who is also named 
+"Speedy", and everyone gets confused.
+
+A Surrogate Key is like your Government Social Security Number or Student Roll 
+Number: "9482104". It doesn't describe what you look like or how fast you run, but 
+it is completely unique, it never changes for your entire life, and the school 
+computer never mixes you up with anyone else!
+
+
+4.2 WHAT IS A NATURAL KEY AND WHY DOES IT BREAK?
+A Natural Key (or Business Key) is an identifier that already exists in the real 
+world or source operational system:
+- Examples: Email address, Social Security Number (SSN), ISBN of a book, Product SKU, 
+  Vehicle Identification Number (VIN), Customer ID issued by Shopify.
+
+Why Natural Keys Make Catastrophic Warehouse Primary Keys:
+1. Natural Keys Change: Users change email addresses. Phone numbers get recycled. 
+   SKUs get modified during supply chain reorganizations. If your fact tables join 
+   on email, changing an email requires updating 50 million historical fact rows!
+2. Natural Keys Collide Across Systems: System A (POS) has customer '1001' (Priya). 
+   System B (CRM) has customer '1001' (Rahul). Joining on natural ID creates 
+   fraudulent cross-customer joins.
+3. Natural Keys Leak PII: Using SSN or Email as a primary key duplicates confidential 
+   Personal Identifiable Information across every index, log, and foreign key column.
+4. Natural Keys are Wide and Slow: Joining on a 256-character VARCHAR email string is 
+   dramatically slower than joining on an 8-byte BIGINT integer.
+
+
+4.3 WHAT IS A SURROGATE KEY AND WHY WAREHOUSES INSIST ON IT?
+A Surrogate Key is a system-generated, integer or UUID identifier created purely 
+for the warehouse, with NO business meaning whatsoever.
+
+Why Professional Warehouses Exclusively Use Surrogate Keys:
+1. Complete Stability: A surrogate key NEVER changes. Once customer Priya is 
+   assigned `customer_key = 50821`, that number never changes, even if her email, 
+   name, and phone number change ten times.
+2. Source System Decoupling: If your company migrates from Shopify to Salesforce, 
+   and Salesforce re-indexes all customers from 1, your warehouse surrogate keys 
+   protect all historical facts from breaking.
+3. Enabling SCD Type 2: To maintain historical versions of an entity, the same 
+   natural key (e.g., Priya `C-101`) MUST have multiple rows in the dimension table! 
+   A natural key cannot be the primary key if it appears multiple times. A surrogate 
+   key gives each VERSION of Priya its own unique primary key.
+
+
+4.4 AUTO-INCREMENT BIGINT VS UUID V4 VS UUID V7
+- Auto-Increment BIGINT:
+  * 8 bytes on disk.
+  * Fastest join performance; perfectly sequential; best for single-node or MPP 
+    warehouses with centralized sequences.
+- UUID v4 (Random):
+  * 16 bytes on disk.
+  * Universally unique across distributed microservices, but random ordering destroys 
+    B-tree indexing and table clustering.
+- UUID v7 (Time-Ordered UUID):
+  * 16 bytes, embeds a 48-bit UNIX timestamp at the beginning.
+  * Globally unique across distributed pipelines, while remaining sequentially 
+    friendly for indexes and partition pruning.
+- Warehouse Best Practice: Auto-increment / IDENTITY BIGINT is the dominant standard 
+  for dimensional warehouse keys.
+
+
+4.5 ENTERPRISE NAMING STANDARDS
+Never name keys generically like `id`!
+- `<entity>_key` : Reserved EXCLUSIVELY for Warehouse Surrogate Keys (e.g., `customer_key`, 
+  `product_key`, `date_key`).
+- `<entity>_id`  : Reserved EXCLUSIVELY for Source System Natural Keys (e.g., `customer_id`, 
+  `order_id`, `sku`).
+
+
+4.6 VISUAL DIAGRAM: KEY PIPELINE DECOUPLING SOURCE SYSTEMS FROM WAREHOUSE
+
+  SOURCE SYSTEMS (Volatile Natural Keys)         KEY PIPELINE TABLE (Mapping)     WAREHOUSE (Stable Surrogate World)
+  ======================================         ============================     ==================================
+  POS System:     [sku = 'SKU-4421'] ----+
+                                         |
+  ERP System:     [item_no = 2209] ------+-----> | source_system | nat_key  | surr_key |   +-------------------------------+
+                                         |       | POS           | SKU-4421 | 8814     |-> | dim_product                   |
+  E-Commerce:     [sku = '550e8400...']--+       | ERP           | 2209     | 8814     |   | product_key = 8814 (PK)       |
+                                                 | ECOM          | 550e8... | 8814     |   | product_name = 'Samsung TV'   |
+                                                 +-------------------------------------+   +-------------------------------+
+                                                                                                           ^
+                                                                                                           | product_key=8814
+                                                                                           +-------------------------------+
+                                                                                           | fact_sales                    |
+                                                                                           | product_key = 8814            |
+                                                                                           +-------------------------------+
+  * If POS renames SKU-4421 to NEW-SKU-99, ONLY the pipeline mapping table updates.
+  * All 10 million fact_sales rows remain completely untouched!
+
+
+4.7 CODE WALKTHROUGH: THE DUAL KEY PATTERN
+
+CREATE TABLE olap.dim_customer_master (
+    -- Surrogate Primary Key (Internal warehouse identifier)
+    customer_key BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    
+    -- Natural Business Key (From source CRM system)
+    customer_id VARCHAR(50) NOT NULL,
+    
+    -- Descriptive attributes
+    full_name VARCHAR(200) NOT NULL,
+    email VARCHAR(200) NOT NULL,
+    city VARCHAR(100),
+    
+    -- Audit & SCD Type 2 tracking
+    effective_from DATE NOT NULL,
+    effective_to DATE DEFAULT DATE '9999-12-31',
+    is_current BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+-- Fast lookup index for ETL when matching incoming natural keys:
+CREATE INDEX idx_dim_cust_natural ON olap.dim_customer_master(customer_id, is_current);
+
+
+--------------------------------------------------------------------------------
+MODULE 4.1a: KIMBALL DIMENSIONAL MODELING - FACTS & DIMENSIONS
+--------------------------------------------------------------------------------
+
+5.1 EXPLAIN LIKE I'M 5: THE NUMBERS AND THE STORIES
+Imagine you have a notebook.
+- The Fact Table is where you write down numbers every time something happens:
+  "Bought 3 chocolates for 15 dollars."
+- The Dimension Tables are the storybooks that tell you all the details about those 
+  numbers: Who bought them? Which store sold them? What brand was the chocolate? 
+  What was the weather like that day?
+
+Numbers without the story mean nothing ("15 dollars spent... who? where?"). 
+And stories without the numbers don't tell the business if they made money. 
+Putting them together makes a Star Schema!
+
+
+5.2 FACT TABLES: THE NUMERIC HEARTBEAT
+A Fact Table represents a business event or measurement:
+- Shape: Extremely tall (millions to billions of rows), but narrow (few columns).
+- Content: Composed almost exclusively of:
+  1. Foreign Keys pointing to surrounding dimension tables.
+  2. Degenerate dimensions (transaction identifiers like receipt numbers).
+  3. Numeric measures (quantities, amounts, durations).
+- Update Behavior: In traditional retail, fact tables are append-only. Once an event 
+  happens, the record is written and never modified.
+
+
+5.3 DIMENSION TABLES: THE RICH DESCRIPTIVE CONTEXT
+A Dimension Table provides the answers to the 5 Ws: Who, What, Where, When, Why, 
+and How:
+- Shape: Wide (often 30 to 100+ columns), but relatively short (thousands to a few 
+  million rows).
+- Content: Primarily human-readable text attributes, categorizations, hierarchies, 
+  and flags.
+- Cardinality: Low to moderate.
+- Rule: "Wider is better." In dimensions, data architects do not shy away from adding 
+  rich descriptive attributes, because columnar engines only scan the columns 
+  requested in a query.
+
+
+5.4 HEAD-TO-HEAD COMPARISON MATRIX
+
++--------------------+-----------------------------+-----------------------------+
+| Feature            | Fact Table                  | Dimension Table             |
++--------------------+-----------------------------+-----------------------------+
+| Represents         | A business event / measure  | Descriptive context / entity|
+| Key Columns        | Foreign Keys (spokes)       | Single Surrogate PK         |
+| Primary Content    | Numbers (revenue, units)    | Text strings, hierarchies   |
+| Row Count (Volume) | Millions to Billions (Huge) | Thousands to Millions (Small|
+| Column Count(Width)| Narrow (10 - 25 columns)    | Wide (30 - 150 columns)     |
+| Change Frequency   | Continuous rapid inserts    | Slowly changing over time   |
+| Kimball Naming     | `fact_<business_process>`   | `dim_<subject_entity>`      |
++--------------------+-----------------------------+-----------------------------+
+
+
+5.5 VISUAL DIAGRAM: THE CLASSIC KIMBALL STAR ARCHITECTURE
+
+                         +-------------------------------+
+                         |           dim_date            |
+                         | ----------------------------- |
+                         | date_key (PK)                 |
+                         | calendar_date, month, quarter |
+                         +-------------------------------+
+                                         |
+                                         | FK: order_date_key
+                                         v
+   +----------------------+    +-------------------------+    +----------------------+
+   |     dim_customer     |    |        fact_sales       |    |     dim_product      |
+   | -------------------- |    | ----------------------- |    | -------------------- |
+   | customer_key (PK)    |--->| date_key (FK)           |<---| product_key (PK)     |
+   | customer_id, name    |    | customer_key (FK)       |    | sku, name, category  |
+   | city, segment        |    | product_key (FK)        |    | brand, unit_cost     |
+   +----------------------+    | store_key (FK)          |    +----------------------+
+                               | order_id (Degenerate)   |
+                               | quantity (Additive)     |
+                               | net_revenue (Additive)  |
+                               +-------------------------+
+                                         ^
+                                         | FK: store_key
+                                         |
+                         +-------------------------------+
+                         |           dim_store           |
+                         | ----------------------------- |
+                         | store_key (PK)                |
+                         | store_code, city, region      |
+                         +-------------------------------+
+
+
+--------------------------------------------------------------------------------
+MODULE 4.1b: KIMBALL - THE SACRED GRAIN
+--------------------------------------------------------------------------------
+
+6.1 EXPLAIN LIKE I'M 5: PHOTO RESOLUTION (4K VS THUMBNAIL)
+Think of taking a photo with a high-end 4K camera. You can zoom in and see the 
+individual buttons on someone's shirt. If you need a small thumbnail for an avatar, 
+you can always shrink the photo.
+But if you took the photo with a blurry 100-pixel webcam, you can NEVER zoom in to 
+see the shirt buttons. The detail was never captured!
+
+In data warehousing, the "Grain" is the camera resolution. If you capture sales at 
+the individual item level (4K), you can easily calculate store totals, monthly totals, 
+and regional totals. But if you only store store-level daily totals (thumbnail), you 
+can NEVER answer: "How many bottles of apple juice did we sell?"
+
+
+6.2 THE GRAIN STATEMENT: THE PIVOT OF EVERY DOWNSTREAM DECISION
+Before writing a single line of SQL DDL, every data modeler must write the Grain 
+Statement as a single, unambiguous English sentence:
+- "One row in this fact table represents..."
+
+Valid Grain Statements:
+- "One row represents one line item on a retail sales receipt."
+- "One row represents one customer account balance at month-end."
+- "One row represents one patient visit milestone transition."
+
+Invalid Grain Statements:
+- "Sales data" (A topic, not a grain).
+- "Orders and items" (Two conflicting grains smashed together).
+
+
+6.3 THREE GRAIN LEVELS FOR THE SAME BUSINESS PROCESS
+Consider retail sales. There are three possible grains:
+1. Atomic Line-Item Grain:
+   - Example: 1 row = 1 item scanned at the cash register.
+   - Rows/year: 10,000,000.
+   - Enables: Product affinity / basket analysis, product discount impact, item margins.
+2. Transaction Grain:
+   - Example: 1 row = 1 entire receipt (summing all items).
+   - Rows/year: 2,500,000.
+   - Loses: All product-level detail! Cannot tell what products were bought together.
+3. Daily Summary Grain:
+   - Example: 1 row = 1 store per day total sales.
+   - Rows/year: 25,000.
+   - Loses: Customer detail, receipt detail, item detail.
+
+
+6.4 VISUAL PYRAMID: THE GRAIN RESOLUTION PYRAMID
+
+                        / \
+                       /   \       MONTHLY SNAPSHOT GRAIN
+                      /     \      (500K rows/year - Coarsest)
+                     /-------\     Aggregation is easy (Down -> Up)
+                    /         \
+                   /           \   TRANSACTION GRAIN
+                  /             \  (3M rows/year - Medium)
+                 /---------------\ Disaggregation is IMPOSSIBLE (Up -> Down)
+                /                 \
+               /                   \ LINE-ITEM GRAIN
+              /                     \ (10M rows/year - Finest)
+             +-----------------------+ PREFER THE FINEST ATOMIC GRAIN YOU CAN AFFORD!
+
+
+6.5 THE GOLDEN RULE: PREFER THE FINEST ATOMIC GRAIN YOU CAN AFFORD
+"You can always aggregate up; you can never disaggregate down."
+Modern cloud warehouses (Snowflake, BigQuery, Databricks) process billions of rows 
+cost-effectively. Therefore, modern data architects always capture the finest atomic 
+grain produced by the operational source system. If summary tables are needed for 
+speed, they are built as secondary aggregate tables (`agg_daily_sales`).
+
+
+6.6 THE DEADLIEST SIN: MIXED GRAIN IN ONE FACT TABLE
+Mixing grains in a single fact table is the most dangerous mistake in dimensional 
+modeling:
+- Imagine a table `fact_sales` where some rows represent line items (Item A = $20, 
+  Item B = $30), AND other rows represent the receipt total (Order Total = $50).
+- When a BI analyst runs: `SELECT SUM(revenue) FROM fact_sales;`
+- The result will be $20 + $30 + $50 = $100!
+- Revenue is doubled silently! No error is thrown, but executive financial dashboards 
+  show false numbers.
+- FIX: Never combine different grains. Build `fact_sales_line` and `fact_sales_order`.
+
+
+--------------------------------------------------------------------------------
+MODULE 4.1c: CONFORMED DIMENSIONS & THE BUS ARCHITECTURE INTRO
+--------------------------------------------------------------------------------
+
+7.1 WHAT IS A CONFORMED DIMENSION?
+A dimension table is Conformed if it has the exact same structure, identical surrogate 
+keys, and consistent business definitions across EVERY fact table in the enterprise.
+- If `dim_product` has `product_key = 8841` representing a "Sony 55-inch OLED TV", 
+  that same key MUST mean "Sony 55-inch OLED TV" in the Sales fact table, the 
+  Inventory fact table, the Warranty fact table, and the Returns fact table!
+
+
+7.2 WHY CONFORMANCE PREVENTS CORPORATE DATA CHAOS
+Without conformed dimensions:
+- The Sales team builds their own sales database with their own product codes.
+- The Inventory team builds their own warehouse with ERP item codes.
+- When the CEO asks: "Show me products where sales revenue is declining but warehouse 
+  inventory is piling up," the answer is impossible because the tables cannot join.
+Conformed dimensions serve as the universal data contract connecting different 
+business departments.
+
+
+7.3 CROSS-FACT ANALYSIS & THE DRILL-ACROSS MECHANISM
+How do you combine metrics from two different fact tables?
+- NEVER join Fact table directly to Fact table (A huge Cartesian fan-trap anti-pattern)!
+- DRILL-ACROSS PATTERN:
+  1. Aggregate Fact A (Sales) by the conformed dimension key in a Common Table 
+     Expression (CTE).
+  2. Aggregate Fact B (Inventory) by the conformed dimension key in a second CTE.
+  3. Join the two aggregated CTEs together using the Conformed Dimension!
+
+
+7.4 VISUAL GRID: KIMBALL ENTERPRISE BUS MATRIX
+
+  BUSINESS PROCESS (Fact Table) | Date | Product | Store | Customer | Employee | Supplier
+  ==============================+======+=========+=======+==========+==========+=========
+  Retail Sales Transactions     |  [X] |   [X]   |  [X]  |   [X]    |   [X]    |         
+  Monthly Inventory Snapshot    |  [X] |   [X]   |  [X]  |          |          |   [X]   
+  Customer Returns              |  [X] |   [X]   |  [X]  |   [X]    |          |         
+  Promotional Coverage          |  [X] |   [X]   |  [X]  |          |          |         
+  ==============================+======+=========+=======+==========+==========+=========
+  CONFORMANCE COUNT:            |  (4) |   (4)   |  (4)  |   (2)    |   (1)    |   (1)   
+  * Columns with multiple [X]s are CONFORMED DIMENSIONS (built first!).
+  * Drill-across queries succeed because both facts share product_key and date_key.
+
+
+7.5 CODE WALKTHROUGH: CROSS-FACT DRILL-ACROSS
+
+WITH sales_summary AS (
+    SELECT 
+        product_key, 
+        SUM(net_revenue) AS total_sales,
+        SUM(quantity_sold) AS total_units_sold
+    FROM olap.fact_sales
+    WHERE order_date_key BETWEEN 20260701 AND 20260731
+    GROUP BY product_key
+),
+inventory_summary AS (
+    SELECT 
+        product_key,
+        SUM(units_on_hand) AS ending_stock
+    FROM dm_week3.fact_inventory_snapshot
+    WHERE snapshot_date_key = 20260731
+    GROUP BY product_key
+)
+SELECT 
+    p.product_name,
+    p.category_name,
+    s.total_sales,
+    s.total_units_sold,
+    i.ending_stock
+FROM sales_summary s
+FULL OUTER JOIN inventory_summary i ON s.product_key = i.product_key
+JOIN olap.dim_product p ON COALESCE(s.product_key, i.product_key) = p.product_key;
+
+
+--------------------------------------------------------------------------------
+MODULE 4.2a, 4.2b, 4.2c: SLOWLY CHANGING DIMENSIONS (SCD)
+--------------------------------------------------------------------------------
+
+8.1 THE CORE DILEMMA: REAL-WORLD ENTITIES CHANGE OVER TIME
+Dimension attributes change in the real world:
+- Customers move to a new apartment or city.
+- A product is recategorized by marketing from 'Home Decor' to 'Kitchen Appliances'.
+- An employee gets promoted from 'Junior Cashier' to 'Store Manager'.
+The question is: How does the warehouse store these changes without corrupting 
+historical financial reports?
+
+
+8.2 "AS-WAS" VS "AS-IS" REPORTING: THE PRIYA MOVE SCENARIO
+- Story: Customer Priya lives in Hyderabad in Q1 (January–March) and buys ₹10,000 
+  worth of groceries.
+- On July 15, Priya moves to Bengaluru.
+- In November, the Regional Sales Director for Hyderabad runs the Q1 performance 
+  report: "What was our total revenue from Hyderabad customers in Q1?"
+
+A. If you overwrote Priya's city to Bengaluru (SCD Type 1):
+   Priya's Q1 purchases retroactively show up under Bengaluru! Hyderabad's Q1 
+   revenue is cheated out of ₹10,000. This is factually false and can trigger 
+   false executive decisions.
+
+B. If you versioned Priya's record with a new row and surrogate key (SCD Type 2):
+   Priya's Q1 purchases remain tied to `customer_key = 401` (Hyderabad). Her Q3 
+   purchases link to `customer_key = 402` (Bengaluru). Both "As-Was" (historical) 
+   and "As-Is" (current state) reports are 100% mathematically accurate!
+
+
+8.3 SCD TYPE TAXONOMY AT A GLANCE
+
++--------+----------------------+--------------------+----------------------------------+
+| Type   | Mechanism            | History Maintained | Best Production Use Case         |
++--------+----------------------+--------------------+----------------------------------+
+| Type 0 | Retain Original      | Original only      | Birthdate, Original Signup Date  |
+| Type 1 | Overwrite value      | None               | Typos, non-analytical attributes|
+| Type 2 | Add new row (Version)| Full infinite      | City, Loyalty Tier, Salary       |
+| Type 3 | Add previous column  | 1 prior state      | Territory realignment, rebrand   |
+| Type 6 | Hybrid (1 + 2 + 3)   | Full + Current     | When both As-Was and As-Is needed|
++--------+----------------------+--------------------+----------------------------------+
+
+
+8.4 VISUAL TIMELINE: SCD TYPE 2 LIFECYCLE & VERSION HISTORY
+
+  Priya's Journey Across 2026:
+  ---------------------------
+  Jan 1, 2026: Priya signs up in Hyderabad.
+  Jul 15, 2026: Priya moves to Bengaluru.
+
+  TIMELINE:
+  |------------------ HYDERABAD -------------------|------------------- BENGALURU ------------------>
+  Jan 1                                         Jul 14  Jul 15                                      Dec 31
+    * Feb 14: Order 1 (₹2500)                            * Aug 05: Order 3 (₹3200)
+    * Mar 22: Order 2 (₹1800)                            * Sep 18: Order 4 (₹4100)
+    (Points to customer_key=401)                         (Points to customer_key=402)
+
+  DIM_CUSTOMER TABLE STATE:
+  +--------------+-------------+-----------+----------------+--------------+------------+
+  | customer_key | customer_id | city      | effective_from | effective_to | is_current |
+  +--------------+-------------+-----------+----------------+--------------+------------+
+  | 401 (Ver 1)  | C-123       | Hyderabad | 2026-01-01     | 2026-07-14   | FALSE      |
+  | 402 (Ver 2)  | C-123       | Bengaluru | 2026-07-15     | 9999-12-31   | TRUE       |
+  +--------------+-------------+-----------+----------------+--------------+------------+
+
+  REVENUE AUDIT:
+  * Q1 Revenue for Hyderabad = ₹2,500 + ₹1,800 = ₹4,300  (Historically Accurate!)
+  * Q3 Revenue for Bengaluru = ₹3,200 + ₹4,100 = ₹7,300  (Historically Accurate!)
+
+
+--------------------------------------------------------------------------------
+MODULE 4.3a & 4.3b: STAR SCHEMA VS SNOWFLAKE SCHEMA
+--------------------------------------------------------------------------------
+
+9.1 ANATOMY OF A STAR SCHEMA (DENORMALIZED RADIAL LAYOUT)
+- Structure: A single central fact table surrounded by completely denormalized 
+  dimension tables.
+- Joins: Always exactly one hop (Fact <-> Dimension). Never Dimension <-> Dimension.
+- Hallmarks: Query SQL is concise, joins are minimal, BI tools natively optimize 
+  for it, and columnar databases compress repeated denormalized strings with ease.
+
+
+9.2 ANATOMY OF A SNOWFLAKE SCHEMA (NORMALIZED SUB-DIMENSIONS)
+- Structure: The dimensions of a star schema are partially or fully normalized into 
+  sub-dimension hierarchy tables.
+- Example: Instead of `dim_product` holding Category and Department names, it holds 
+  a `category_key` pointing to `dim_category`, which holds a `department_key` 
+  pointing to `dim_department`.
+- Visual Shape: When drawn, the tables branch outward with multiple sub-tables, 
+  resembling the crystalline structure of a snowflake.
+
+
+9.3 VISUAL DIAGRAM: STAR VS SNOWFLAKE VS GALAXY ARCHITECTURE
+
+    STAR SCHEMA                           SNOWFLAKE SCHEMA                       GALAXY SCHEMA (Fact Constellation)
+    ===========                           ================                       =================================
+    +----------+                          +--------------+                       +----------+         +----------+
+    | dim_cust |                          | dim_category |                       | dim_cust |         | dim_prod |
+    +----------+                          +--------------+                       +----------+         +----------+
+         \                                       |                                    \             /     /
+          v                                      v                                     v           v     v
+    +------------+                        +--------------+                       +---------------+   +---------------+
+    | fact_sales |                        | dim_product  |                       |  fact_sales   |   | fact_returns  |
+    +------------+                        +--------------+                       +---------------+   +---------------+
+          ^                                      ^                                     ^                   ^
+         /                                       |                                     |                   |
+    +----------+                          +--------------+                             +--------+----------+
+    | dim_prod |                          |  fact_sales  |                                      |
+    +----------+                          +--------------+                              +---------------+
+    (Flat 1-hop joins)                    (Normalized multi-hop joins)                  |   dim_date    |
+                                                                                        +---------------+
+                                                                                        (Multiple facts share dims)
+
+
+--------------------------------------------------------------------------------
+MODULE 4.4a & 4.4b: DATA WAREHOUSE VS DATA LAKE VS LAKEHOUSE
+--------------------------------------------------------------------------------
+
+10.1 THE THREE LAYERS OF EVERY ANALYTICS STACK
+Every data architecture consists of three distinct layers:
+1. Storage Layer: Where the raw bytes live on physical hardware (SSD, S3, HDFS).
+2. Metadata Layer: Defines table schemas, column data types, partitions, statistics, 
+   and transaction logs.
+3. Compute Layer: The query engine that reads the metadata, optimizes query plans, 
+   and processes SQL operations (Snowflake Virtual Warehouses, Spark, Trino, DuckDB).
+
+
+10.2 THE MEDALLION ARCHITECTURE (BRONZE, SILVER, GOLD)
+The industry standard data refinement pattern in modern lakehouses:
+1. Bronze (Raw Ingest Zone):
+   - Append-only, untouched raw data directly from sources (e.g., raw JSON webhooks, 
+     Kafka streams, CDC database dumps). Preserves complete replayability and audit trail.
+2. Silver (Cleaned & Conformed Zone):
+   - Data is parsed, validated, type-coerced, and deduplicated. Business logic and 
+     data quality rules are enforced. Grain is standardized.
+3. Gold (Business-Ready Analytical Zone):
+   - High-performance Kimball Star Schemas, aggregated data marts, and feature sets 
+     curated specifically for Power BI, Tableau, and ML models.
+
+--------------------------------------------------------------------------------
+VISUAL FLOWCHART: MEDALLION DATA QUALITY PIPELINE
+--------------------------------------------------------------------------------
+
+  +-----------------------+
+  | SOURCE SYSTEMS        |
+  | (Kafka / S3 / Stripe) |
+  +-----------------------+
+              |
+              | 1. Append untouched raw payload
+              v
+  +-----------------------------------------------------------+
+  | BRONZE LAYER (Raw Ingest)                                 |
+  | Table: bronze.raw_orders (JSONB, ingest_timestamp)        |
+  | * Never modified, full replayability, audit compliance    |
+  +-----------------------------------------------------------+
+              |
+              | 2. Parse JSON, filter corrupt records, deduplicate
+              v
+  +-----------------------------------------------------------+
+  | SILVER LAYER (Cleaned & Validated)                        |
+  | Table: silver.orders (typed columns, business rules)      |
+  | * Deduplicated by order_id, validated customer keys       |
+  +-----------------------------------------------------------+
+              |
+              | 3. Model into Kimball Star & Pre-aggregate KPIs
+              v
+  +-----------------------------------------------------------+
+  | GOLD LAYER (Business-Ready Presentation)                  |
+  | Schema: gold.fact_sales, dim_product, dim_customer        |
+  | * Power BI, Tableau, and Executive dashboards query Gold  |
+  +-----------------------------------------------------------+
+
+
+--------------------------------------------------------------------------------
+MODULE 4.5: FEATURE STORE MODELING FOR MACHINE LEARNING
+--------------------------------------------------------------------------------
+
+11.1 DUAL-STORE ARCHITECTURE & POINT-IN-TIME (PIT) JOINS
+A Feature Store solves Train-Serve Skew by maintaining TWO storage engines 
+backed by ONE single canonical feature definition:
+- Offline Store (Warehouse / Lakehouse): Stores years of historical, timestamped 
+  feature values. Optimized for massive batch reads during model training.
+- Online Store (Low-Latency Key-Value Store - Redis / DynamoDB): Stores ONLY 
+  the most recent feature value per entity for sub-10ms real-time inference.
+
+--------------------------------------------------------------------------------
+VISUAL DIAGRAM: FEATURE STORE DUAL-STORE ARCHITECTURE & POINT-IN-TIME JOIN
+--------------------------------------------------------------------------------
+
+                 +---------------------------------------------+
+                 | CANONICAL FEATURE SPECIFICATION (e.g. Feast)|
+                 | Feature: customer__orders__count__30d       |
+                 +---------------------------------------------+
+                                        |
+                 +----------------------+----------------------+
+                 | Materialization                             | Materialization
+                 v                                             v
+  +-------------------------------------+       +-------------------------------------+
+  | OFFLINE STORE (Snowflake / Parquet) |       | ONLINE STORE (Redis / DynamoDB)     |
+  | (Customer_ID, Timestamp, Features)  |       | Key: "customer:101"                 |
+  | 10M rows of historical snapshots    |       | Value: {orders_30d: 4} (<10ms)      |
+  +-------------------------------------+       +-------------------------------------+
+                 |                                             |
+                 | Batch Historical Training                   | Real-Time Inference
+                 v                                             v
+  +-------------------------------------+       +-------------------------------------+
+  | Training Dataset (PIT Joined)       |       | Production Recommendation Model     |
+  | Label: 2026-07-15 -> Features as of |       | Fetches latest features on checkout |
+  | 2026-07-15 strictly! ZERO LEAKAGE!  |       |                                     |
+  +-------------------------------------+       +-------------------------------------+
+
+
+================================================================================
+PART II: WEEK 3 - DIMENSIONAL MODELING DEEP DIVE (DAYS 11 - 16)
+================================================================================
+
+--------------------------------------------------------------------------------
+DAY 11 (MONDAY): FACT TABLE MASTERY (M1 - M5)
+--------------------------------------------------------------------------------
+
+13.1 M1: THE THREE CANONICAL FACT TABLE TYPES & ROW LIFECYCLES
+
+--------------------------------------------------------------------------------
+VISUAL DIAGRAM: ROW LIFECYCLE COMPARISON ACROSS FACT TYPES
+--------------------------------------------------------------------------------
+
+  1. TRANSACTION FACT (fact_sales)
+     Timeline: Event T=1 -> Row Inserted. Never Updated.
+     Row 1: [date_key=20261014, store=1, prod=42, qty=2, rev=500.00]
+     Row 2: [date_key=20261014, store=1, prod=99, qty=1, rev=120.00]
+
+  2. PERIODIC SNAPSHOT FACT (fact_inventory_daily)
+     Timeline: Scheduled midnight close -> Row inserted even with ZERO activity!
+     Day 1: [date=20261001, store=1, prod=42, units_on_hand=50]
+     Day 2: [date=20261002, store=1, prod=42, units_on_hand=50] (No sales, but row exists!)
+
+  3. ACCUMULATING SNAPSHOT FACT (fact_order_fulfillment)
+     Timeline: Order Placed -> Paid -> Shipped -> Delivered
+     Day 1: [order=1001, placed=Oct 1, paid=NULL,   shipped=NULL,   delivered=NULL]
+     Day 2: [order=1001, placed=Oct 1, paid=Oct 2,  shipped=NULL,   delivered=NULL] (UPDATED!)
+     Day 3: [order=1001, placed=Oct 1, paid=Oct 2,  shipped=Oct 3,  delivered=Oct 5](UPDATED!)
+
+
+13.2 M2: THE MATH OF AGGREGATION - SAFETY MATRIX
+
+--------------------------------------------------------------------------------
+VISUAL MATRIX: THE AGGREGATION SAFETY MATRIX
+--------------------------------------------------------------------------------
+
+  +----------------------+------------------+------------------+------------------+
+  | Measure Column       | Sum by Product   | Sum by Store     | Sum by Time      |
+  +----------------------+------------------+------------------+------------------+
+  | net_revenue          | [✓] Correct      | [✓] Correct      | [✓] Correct      |
+  | (Additive)           |                  |                  |                  |
+  +----------------------+------------------+------------------+------------------+
+  | units_on_hand        | [✓] Correct      | [✓] Correct      | [X] WRONG!       |
+  | (Semi-Additive)      | (Total in store) | (Total in chain) | (Use AVG/LAST)   |
+  +----------------------+------------------+------------------+------------------+
+  | unit_price           | [X] WRONG!       | [X] WRONG!       | [X] WRONG!       |
+  | (Non-Additive)       | (Sum meaningless)| (Sum meaningless)| (Derive in query)|
+  +----------------------+------------------+------------------+------------------+
+  * Non-Additive Trap: Storing margin_pct = 40% on 1,000 rows.
+  * If summed: SUM(margin_pct) = 40,000%! Always store revenue and cost; compute in query.
+
+
+13.3 M3: FACTLESS FACT TABLES (EVENT CAPTURE VS COVERAGE)
+
+--------------------------------------------------------------------------------
+VISUAL DIAGRAM: EVENT CAPTURE VS COVERAGE PATTERN
+--------------------------------------------------------------------------------
+
+  EVENT-CAPTURER: fact_attendance              COVERAGE FACT: fact_promo_coverage
+  +--------------------------------+           +--------------------------------+
+  | date_key, student_key, course  |           | date_key, store_key, prod_key  |
+  | (NO MEASURES - Row existence   |           | (Records what was PROMOTED)    |
+  |  is the fact; COUNT(*) = total)|           +--------------------------------+
+  +--------------------------------+                            |
+                                                                | LEFT JOIN (Find unsold promoted items)
+                                                                v
+                                               +--------------------------------+
+                                               | fact_sales_transaction        |
+                                               | (WHERE sale.date_key IS NULL)  |
+                                               +--------------------------------+
+
+
+13.4 M4 & M5: DEGENERATE & JUNK DIMENSIONS
+
+--------------------------------------------------------------------------------
+VISUAL WORKFLOW: JUNK DIMENSION FACT TABLE WIDTH REDUCTION
+--------------------------------------------------------------------------------
+
+  BEFORE: Cluttered Billion-Row Fact Table (11 Columns, Slow Scans)
+  +-----------------------------------------------------------------------------+
+  | date_key | store_key | prod_key | is_gift | pay_method | channel | qty | rev |
+  +-----------------------------------------------------------------------------+
+  * Millions of wide VARCHAR flag strings repeated on every row.
+
+  AFTER: Clean 7-Column Fact Table + Tiny 24-Row Junk Dimension
+  +-------------------------------------------------------+      +---------------------------+
+  | date_key | store_key | prod_key | junk_key | qty | rev| ---> | dim_order_junk            |
+  +-------------------------------------------------------+      | junk_key | gift | pay | ch|
+  * Fact table width reduced by 36%!                             | 1        | Y    | UPI |Web|
+  * Better columnar compression; fast 8-byte integer joins.      +---------------------------+
+
+
+--------------------------------------------------------------------------------
+DAY 12 (TUESDAY): ADVANCED DIMENSION TECHNIQUES (T1 - T5)
+--------------------------------------------------------------------------------
+
+14.1 T1: ROLE-PLAYING DIMENSIONS
+--------------------------------------------------------------------------------
+VISUAL DIAGRAM: ONE PHYSICAL TABLE, THREE LOGICAL ROLES
+--------------------------------------------------------------------------------
+
+                         +-------------------------------+
+                         |   dim_date (Physical Table)   |
+                         |   date_key, full_date, month  |
+                         +-------------------------------+
+                                  /      |      \
+                  CREATE VIEW AS /       |       \ CREATE VIEW AS
+                                v        v        v
+  +---------------------+ +--------------------+ +------------------------+
+  |   dim_order_date    | |   dim_ship_date    | |   dim_delivery_date    |
+  +---------------------+ +--------------------+ +------------------------+
+            |                        |                        |
+            +------------------------+------------------------+
+                                     |
+                                     v
+                        +-------------------------+
+                        | fact_order_fulfillment  |
+                        | order_date_key (FK)     |
+                        | ship_date_key (FK)      |
+                        | delivery_date_key (FK)  |
+                        +-------------------------+
+
+
+14.2 T2: BRIDGE TABLES FOR MANY-TO-MANY RELATIONSHIPS
+--------------------------------------------------------------------------------
+VISUAL DIAGRAM: FACT -> BRIDGE -> DIMENSION WITH ALLOCATION WEIGHTS
+--------------------------------------------------------------------------------
+
+  +-----------------------+       +------------------------------------+       +----------------------+
+  | fact_account_activity |       | bridge_account_customer            |       | dim_customer         |
+  | --------------------- |       | ---------------------------------- |       | -------------------- |
+  | account_key = 1001    |------>| account_key | customer_key | weight|------>| customer_key = 201   |
+  | revenue = $1,000      |       | 1001        | 201          | 0.50  |       | customer_key = 202   |
+  +-----------------------+       | 1001        | 202          | 0.30  |       +----------------------+
+                                  | 1001        | 203          | 0.20  |
+                                  +------------------------------------+
+  * Weighted Revenue Calculation:
+    Customer 201 Share = $1,000 * 0.50 = $500
+    Customer 202 Share = $1,000 * 0.30 = $300
+    Customer 203 Share = $1,000 * 0.20 = $200
+    Total Sum = $1,000 (Preserves 100% mathematical integrity without double-counting!)
+
+
+14.3 T3: HIERARCHIES: FIXED VS RAGGED VS RECURSIVE ORG CHART
+
+--------------------------------------------------------------------------------
+VISUAL DIAGRAM: FIXED VS RAGGED VS RECURSIVE HIERARCHIES
+--------------------------------------------------------------------------------
+
+  1. FIXED HIERARCHY (4 Levels - Flatten into dim_product):
+     [Department: Electronics] -> [Category: Phones] -> [Subcat: 5G] -> [Product: Galaxy S25]
+
+  2. RAGGED HIERARCHY (Uneven depth - Promote deepest value):
+     USA:       [Country: USA]       -> [State: California] -> [City: San Francisco]
+     Singapore: [Country: Singapore] -> [State: Singapore]  -> [City: Singapore]
+
+  3. RECURSIVE HIERARCHY (Org Chart - Self-Referencing):
+     [CEO: Alice (Key 101)]
+           |
+           +--> [VP: Bob (Key 102, Parent 101)]
+                     |
+                     +--> [Rep: Charlie (Key 103, Parent 102)]
+     * Query with Recursive CTE or Pre-built Ancestor Bridge Table!
+
+
+14.4 T5: MINI-DIMENSIONS (SOLVING TYPE 2 ROW EXPLOSION)
+
+--------------------------------------------------------------------------------
+VISUAL DIAGRAM: SPLITTING FAST-CHANGING DEMOGRAPHIC PROFILES
+--------------------------------------------------------------------------------
+
+  WITHOUT MINI-DIM (Explosion):
+  5 Million Customers * 12 monthly tier/score changes = 60 Million new rows/year!
+
+  WITH MINI-DIMENSION (Separation of Concerns):
+  +-----------------------------+           +------------------------------+
+  | dim_customer (Stable)       |           | dim_customer_demographics    |
+  | --------------------------- |           | ---------------------------- |
+  | customer_key (PK)           |           | demo_key (PK)                |
+  | customer_id, name, birthdate|           | age_band, income_band, tier  |
+  +-----------------------------+           +------------------------------+
+                 \                                         /
+                  \                                       /
+                   v                                     v
+                 +-----------------------------------------+
+                 | fact_sales_transaction                  |
+                 | customer_key (Who bought)               |
+                 | demo_key (What profile at time of sale) |
+                 +-----------------------------------------+
+
+
+--------------------------------------------------------------------------------
+DAY 13 (WEDNESDAY): ENTERPRISE DATA MARTS & BUS MATRIX (W1 - W5)
+--------------------------------------------------------------------------------
+
+15.1 W1: DEPENDENT VS INDEPENDENT DATA MARTS
+
+--------------------------------------------------------------------------------
+VISUAL DIAGRAM: INTEGRATION CONTRACT VS DEPARTMENTAL SILOS
+--------------------------------------------------------------------------------
+
+  DEPENDENT MARTS (Kimball Standard)           INDEPENDENT MARTS (Silo Anti-Pattern)
+  ==================================           =====================================
+         [Enterprise DW]                               [Sales]      [Inventory]
+        /       |       \                                 |              |
+       v        v        v                                v              v
+  [Sales]  [Inventory] [Finance]                   [Sales Mart]   [Inventory Mart]
+     * Shared conformed product_key 4421              * product_id 1  * product_id 1
+     * Cross-mart drill-across WORKS!                   is 'TV'        is 'Shoe'
+                                                      * Cross-mart join is FATALLY BROKEN!
+
+
+15.2 W4: E-COMMERCE MULTI-GRAIN FUNNEL
+
+--------------------------------------------------------------------------------
+VISUAL DIAGRAM: E-COMMERCE 4-GRAIN USER JOURNEY FUNNEL
+--------------------------------------------------------------------------------
+
+  Stage 1: [CLICKSTREAM EVENT] -> fact_web_event (1 row per click/view - 100M/day)
+                 |
+                 v
+  Stage 2: [SESSION SUMMARY]  -> fact_web_session (1 row per user session - 5M/day)
+                 |
+                 v
+  Stage 3: [CART ADDITION]    -> fact_cart_abandonment (Near-factless: added but unsold)
+                 |
+                 v
+  Stage 4: [ORDER CHECKOUT]   -> fact_order_line (1 row per purchased item - 500K/day)
+
+
+--------------------------------------------------------------------------------
+DAY 14 (THURSDAY): PRODUCTION ETL, SCD MERGE & DATA QUALITY (H1 - H5)
+--------------------------------------------------------------------------------
+
+16.1 H1: SCD TYPE 2 TWO-STEP MERGE FLOWCHART
+
+--------------------------------------------------------------------------------
+VISUAL FLOWCHART: SCD TYPE 2 TWO-STEP MERGE PROCESS
+--------------------------------------------------------------------------------
+
+  [Staging Customer Records]
+              |
+              | 1. Compare against active dimension (is_current = TRUE)
+              v
+  +-----------------------+
+  | Does natural key match|
+  | in target dimension?  |
+  +-----------------------+
+         /         \
+   NO   /           \  YES
+       v             v
+  [INSERT new]     +-----------------------+
+  (Version 1,      | Did tracked attributes|
+   is_current=1)   | change (City / Tier)? |
+                   +-----------------------+
+                          /         \
+                    YES  /           \  NO
+                        v             v
+             +--------------------+  [Do Nothing]
+             | STEP 1: EXPIRE OLD |  (Idempotent)
+             | valid_to = Yest.   |
+             | is_current = FALSE |
+             +--------------------+
+                        |
+                        v
+             +--------------------+
+             | STEP 2: INSERT NEW |
+             | New surrogate key  |
+             | valid_from = Today |
+             | is_current = TRUE  |
+             +--------------------+
+
+
+16.2 H3: LATE-ARRIVING DIMENSION LIFECYCLE
+
+--------------------------------------------------------------------------------
+VISUAL LIFECYCLE: LATE-ARRIVING DIMENSION HANDLING
+--------------------------------------------------------------------------------
+
+  T=0: Fact arrives before Dimension
+  ----------------------------------
+  Fact Record: [store_code='KCH-001', revenue=₹45,000]
+  1. Lookup in dim_store fails (Store not found!).
+  2. Action: Create Placeholder in dim_store:
+     [store_key=9042, store_code='KCH-001', store_name='PENDING', is_placeholder=1]
+  3. Load Fact Record with placeholder store_key=9042. Fact is preserved!
+
+  T=4 Hours: Real Store Record Arrives
+  ------------------------------------
+  Source Record: [code='KCH-001', name='Kochi MG Road Express', region='South']
+  1. Execute in-place Type 1 back-update on dim_store:
+     UPDATE dim_store SET store_name='Kochi MG Road Express', is_placeholder=0 WHERE store_key=9042;
+  2. Fact table is UNTOUCHED! All historical queries now automatically resolve correctly!
+
+
+16.3 H4: SLOWLY CHANGING FACTS & NEGATING ENTRY REVERSALS
+
+--------------------------------------------------------------------------------
+VISUAL DIAGRAM: DESTRUCTIVE DELETE VS NEGATING ENTRY REVERSAL
+--------------------------------------------------------------------------------
+
+  DESTRUCTIVE DELETE (Anti-Pattern):
+  `DELETE FROM fact_sales WHERE date = '2026-11-05';`
+  * Audit trail destroyed. Prior reports cannot be verified. Dangerous in cloud storage.
+
+  NEGATING ENTRY REVERSAL (Production Standard):
+  1. Original Duplicated Batch:   +₹1,125,000 (Load Date: Nov 05, correction_flag=0)
+  2. Negating Reversal Batch:     -₹1,125,000 (Load Date: Nov 06, correction_flag=1, 'DUPLICATE')
+  3. Net Sum in BI Reports:        ₹1,125,000 (Accurate net total!)
+  * 100% audit trail preserved. Full history inspectable by financial auditors.
+
+
+16.4 H5: FIVE-RULE DATA QUALITY GATE
+
+--------------------------------------------------------------------------------
+VISUAL FLOWCHART: FIVE-RULE STAGING DATA QUALITY GATE
+--------------------------------------------------------------------------------
+
+  [Staging Sales Table: 50,000 incoming rows]
+                     |
+                     v
+  +-----------------------------------------------------------+
+  | RULE 1: NULL CHECK                                        | --> Fail: Route to stg_sales_rejected
+  | (Mandatory: transaction_number, store_code, net_revenue)  |     ('NULL_REQUIRED_FIELD')
+  +-----------------------------------------------------------+
+                     | Pass
+                     v
+  +-----------------------------------------------------------+
+  | RULE 2: REFERENTIAL INTEGRITY                             | --> Fail: Create Inferred Placeholder
+  | (Does product_code resolve to active dim_product?)        |     in dimension; continue load
+  +-----------------------------------------------------------+
+                     | Pass
+                     v
+  +-----------------------------------------------------------+
+  | RULE 3: DOMAIN & RANGE CHECK                              | --> Fail: Route to stg_sales_rejected
+  | (0 <= net_revenue <= 500,000 AND 1 <= quantity <= 1,000)  |     ('OUT_OF_RANGE')
+  +-----------------------------------------------------------+
+                     | Pass
+                     v
+  +-----------------------------------------------------------+
+  | RULE 4: VOLUME ANOMALY CHECK                              | --> Fail: Z-Score > 3: Alert on-call
+  | (Compare today count vs 30-day rolling avg Z-score)       |     engineer before proceeding
+  +-----------------------------------------------------------+
+                     | Pass
+                     v
+  +-----------------------------------------------------------+
+  | RULE 5: FRESHNESS CHECK                                   | --> Fail: Source timestamp > 6h old:
+  | (Max source_timestamp within SLA threshold)               |     Flag pipeline as stale
+  +-----------------------------------------------------------+
+                     |
+                     v
+  [LOAD TO PRODUCTION FACT TABLE: 49,796 clean rows inserted]
+
+
+--------------------------------------------------------------------------------
+DAY 15 (FRIDAY): END-TO-END DESIGN & INTERVIEW READINESS (F1 - F5)
+--------------------------------------------------------------------------------
+
+17.1 F5: THE WHITEBOARD DESIGN INTERVIEW PROTOCOL
+
+--------------------------------------------------------------------------------
+VISUAL FLOWCHART: 6-STEP WHITEBOARD INTERVIEW PROTOCOL
+--------------------------------------------------------------------------------
+
+  STEP 1: CLARIFY REQUIREMENTS (2 min)
+  * Ask: Atomic grain available? Real-time vs batch? Key analytical questions?
+                   |
+                   v
+  STEP 2: STATE THE BUSINESS PROCESS (30 sec)
+  * "I am modeling completed retail point-of-sale customer checkouts."
+                   |
+                   v
+  STEP 3: DECLARE THE SACRED GRAIN FIRST, LOUDLY (1 min)
+  * "The grain is: One row represents one line item on a retail sales receipt."
+                   |
+                   v
+  STEP 4: LIST DIMENSIONS BY ANALYTICAL LENS (1 min)
+  * Date, Store, Product, Customer, Promotion, Employee, Degenerate Receipt Number.
+                   |
+                   v
+  STEP 5: CLASSIFY FACTS BY ADDITIVITY (1 min)
+  * Additive: Quantity, Revenue, Cost. Non-Additive: Unit Price, Margin % (Derive!).
+                   |
+                   v
+  STEP 6: HANDLE FOLLOW-UPS & BUS MATRIX (2 min)
+  * SCD Type 2 decisions, late-arriving dimensions, position on Enterprise Bus Matrix.
+
+================================================================================
+END OF ENHANCED DATA MODELING MASTER NOTES
+================================================================================

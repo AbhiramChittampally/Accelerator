@@ -374,6 +374,20 @@ Dimension Compatibility Check:
     X: (32, 4) @ W: (4, 6) + b: (6) ===> Z: (32, 6)
     Each of the 32 samples produces 6 activated feature outputs in a single matrix multiplication!
 
+Visual Matrix Dimension Flow:
+
+     INPUT BATCH X                 WEIGHT MATRIX W              BIAS VECTOR b            OUTPUT TENSOR Z
+    ┌─────────────────┐           ┌───────────────┐            ┌───────────────┐        ┌───────────────┐
+    │ x11 x12 x13 x14 │           │ w11  ...  w16 │            │ b1 ...     b6 │        │ z11  ...  z16 │
+    │ x21 x22 x23 x24 │     @     │ w21  ...  w26 │      +     └───────────────┘   ──>  │ z21  ...  z26 │
+    │ ... ... ... ... │           │ w31  ...  w36 │                Broadcasted          │ ...  ...  ... │
+    │ xB1 xB2 xB3 xB4 │           │ w41  ...  w46 │                to (B, D_out)        │ zB1  ...  zB6 │
+    └─────────────────┘           └───────────────┘                                     └───────────────┘
+        (B, D_in)                     (D_in, D_out)                   (D_out)                (B, D_out)
+         (32, 4)             @           (4, 6)              +          (6)           =       (32, 6)
+                          Inner dimensions (4) match!
+
+
 
 ================================================================================
 5. LOSS FUNCTIONS: QUANTIFYING PREDICTION ERROR
@@ -477,6 +491,19 @@ For the bias b:
    signal down to layer k-1.
 5. Repeat iteratively until reaching the input layer.
 
+Visual Backpropagation Error Flow:
+
+  FORWARD PASS (Data & Activations propagate forward):
+  [ Input X ] ────> [ Layer 1: W1, b1 ] ──(a1)──> [ Layer 2: W2, b2 ] ──(y_hat)──> [ LOSS FUNCTION L ]
+                                                                                            │
+  BACKWARD PASS (Error gradients propagate backward via Chain Rule):                        │
+  dL/dW1 <──────── dL/da1 <───────────── dL/dW2 <───────────── dL/dz2 <──────── dL/dy_hat <┘
+  (δ1 * X^T)       (W2^T * δ2)           (δ2 * a1^T)          (dL/dy_hat * f'(z2))
+      │                                      │
+      ▼                                      ▼
+  Update W1 via SGD                      Update W2 via SGD
+
+
 
 6.4 DISTINCTION: BACKPROPAGATION VS. GRADIENT DESCENT
 --------------------------------------------------------------------------------
@@ -517,6 +544,20 @@ Why the minus sign?
       training to DIVERGE (loss explodes to NaN / infinity).
 - Well-Tuned (e.g., eta = 0.001 - 0.01):
     * Smooth, steady convergence toward the minimum loss.
+
+Visual Learning Rate Dynamics on Loss Surface:
+
+       TOO SMALL (η = 1e-6)               OPTIMAL (η = 0.001)               TOO LARGE (η = 5.0)
+         Loss                              Loss                              Loss
+          │  \             /                │  \             /                │  \    * /───> Explodes!
+          │   \           /                 │   \           /                 │   \  / *
+          │    \ . . . . /                  │    \ *       /                  │    \*   \
+          │     \......./                   │     \  * *  /                   │   /  \   *
+          │      \_____/                    │      \_ * _/                    │  /    \ /
+          └─────────────────> θ             └─────────────────> θ             └─────────────────> θ
+           Tiny crawl; traps in              Clean convergence to              Violent overshoots;
+           plateaus and local minima         global/good local minimum         loss explodes to NaN
+
 
 
 7.3 ADVANCED OPTIMIZERS: SGD, MOMENTUM, RMSPROP & ADAM
@@ -695,6 +736,35 @@ model = model.to(device)
 ```
 - Rule: All interacting tensors and models MUST reside on the exact same device.
   Passing a CPU tensor into a GPU model crashes with: `RuntimeError: Expected all tensors to be on the same device`.
+
+Visual Hardware Lifecycle: Tensor Memory Pipeline
+
+  ┌─────────────────────────────────┐
+  │         CPU HOST MEMORY         │
+  │  DataLoader / NumPy Dataset     │
+  │  (Disk I/O, Workers, Batching)  │
+  └────────────────┬────────────────┘
+                   │
+                   │  .to(device, non_blocking=True)
+                   │  via High-Speed PCIe Bus
+                   ▼
+  ┌─────────────────────────────────┐
+  │       NVIDIA GPU VRAM           │
+  │  Tensors allocated in VRAM:     │
+  │  - Input Batch Tensor X         │
+  │  - Model Weights & Biases (W,b) │
+  │  - Forward Activation Buffers   │
+  │  - Autograd Backward Gradients  │
+  │  - Optimizer Momentum States    │
+  └────────────────┬────────────────┘
+                   │
+                   │  predictions.cpu().numpy()
+                   │  (Only for final output serialization)
+                   ▼
+  ┌─────────────────────────────────┐
+  │        REST API / DISK          │
+  └─────────────────────────────────┘
+
 
 
 9.6 ELEMENT-WISE MATH VS. MATRIX MULTIPLICATION
@@ -939,6 +1009,36 @@ Hierarchical Representation Hierarchy:
    - Continue training the entire network on the target dataset using a much smaller learning rate.
    - Advantages: Adapts internal features deeply to specialized target domains.
 
+Visual Transfer Learning Architecture:
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │         PRETRAINED SOURCE MODEL (e.g., ImageNet ResNet-50)   │
+  └──────────────────────────────┬───────────────────────────────┘
+                                 │
+     ┌───────────────────────────┴───────────────────────────┐
+     │                                                       │
+     ▼                                                       ▼
+  STRATEGY A: FEATURE EXTRACTION            STRATEGY B: DIFFERENTIAL FINE-TUNING
+  
+  ┌───────────────────────────────────────┐  ┌───────────────────────────────────────┐
+  │ Layer 1: Edges & Textures  [FROZEN 🔒]│  │ Layer 1: Edges & Textures  [FROZEN 🔒]│
+  │ requires_grad = False                 │  │ requires_grad = False                 │
+  ├───────────────────────────────────────┤  ├───────────────────────────────────────┤
+  │ Layer 2: Shapes & Patterns [FROZEN 🔒]│  │ Layer 2: Shapes & Patterns [FROZEN 🔒]│
+  │ requires_grad = False                 │  │ requires_grad = False                 │
+  ├───────────────────────────────────────┤  ├───────────────────────────────────────┤
+  │ Layer 3: Complex Parts     [FROZEN 🔒]│  │ Layer 3: Complex Parts     [FROZEN 🔒]│
+  │ requires_grad = False                 │  │ requires_grad = False                 │
+  ├───────────────────────────────────────┤  ├───────────────────────────────────────┤
+  │ Layer 4: High Semantics    [FROZEN 🔒]│  │ Layer 4: High Semantics    [SLOW  🚀]│
+  │ requires_grad = False                 │  │ requires_grad = True (lr = 1e-4)      │
+  ├───────────────────────────────────────┤  ├───────────────────────────────────────┤
+  │ NEW CLASSIFICATION HEAD    [FAST  🔥]│  │ NEW CLASSIFICATION HEAD    [FAST  🔥]│
+  │ nn.Linear(in_feat, Target)            │  │ nn.Linear(in_feat, Target)            │
+  │ requires_grad = True (lr = 1e-2)      │  │ requires_grad = True (lr = 1e-2)      │
+  └───────────────────────────────────────┘  └───────────────────────────────────────┘
+
+
 
 14.3 FREEZING AND UNFREEZING LAYERS VIA REQUIRES_GRAD
 --------------------------------------------------------------------------------
@@ -1060,6 +1160,43 @@ Avoid full fine-tuning when:
 - Pydantic `BaseModel`: Enforces strict data types and valid value ranges (`Field(ge=0, le=1)`).
 - Automatic HTTP 422: Malformed or out-of-range requests are rejected at the network boundary
   BEFORE reaching model code, protecting the PyTorch model from numerical crashes.
+
+Visual Architecture: Production FastAPI Real-Time Serving Lifecycle
+
+  [ Live Client / App ]
+           │
+           │  HTTP POST /predict {"features": [1.2, 0.4, -0.9, 2.1]}
+           ▼
+  ┌────────────────────────────────────────────────────────┐
+  │         FASTAPI + PYDANTIC INGRESS SHIELD              │
+  │  - JSON Schema Validation                              │
+  │  - Type Checking (float32, list length == 4)           │
+  │  - Range Validation: Field(ge=0, le=10)                │
+  └──────────────────────────┬─────────────────────────────┘
+                             │
+            ┌────────────────┴────────────────┐
+            ▼ [INVALID DATA]                  ▼ [VALID DATA]
+     HTTP 422 Unprocessable            Convert to torch.Tensor
+     Entity (Early Rejection)                 │
+                                              ▼
+                             ┌───────────────────────────────────┐
+                             │       IN-MEMORY PYTORCH MODEL     │
+                             │  (Loaded ONCE in Lifespan Startup)│
+                             │  - model.eval()                   │
+                             │  - with torch.no_grad():          │
+                             │      logits = model(batch)        │
+                             │      probs = torch.softmax(logits)│
+                             └────────────────┬──────────────────┘
+                                              │
+                                              ▼
+                             ┌───────────────────────────────────┐
+                             │       EGRESS RESPONSE FORMATTER   │
+                             │  {"prediction": 1, "prob": 0.942} │
+                             └────────────────┬──────────────────┘
+                                              │
+                                              ▼
+                                   HTTP 200 OK (Latency < 15ms)
+
 
 
 16.4 LIFESPAN ARCHITECTURE: LOADING MODELS ONCE AT STARTUP

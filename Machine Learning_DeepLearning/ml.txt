@@ -730,27 +730,64 @@ Bias update:
 
 8.1 THE END-TO-END ML PIPELINE
 --------------------------------------------------------------------------------
-RAW DATA
-   ↓
-Separate Features (X) and Target (y)
-   ↓
-TRAIN / TEST SPLIT (Split First!)
-   ↓
-Data Cleaning & Missing Value Imputation (Fit on Train, Transform on Test)
-   ↓
-Feature Scaling & Categorical Encoding (Fit on Train, Transform on Test)
-   ↓
-Feature Selection
-   ↓
-Model Training (model.fit on Train)
-   ↓
-Validation & Cross-Validation
-   ↓
-Hyperparameter Tuning
-   ↓
-Final Evaluation on Unseen Test Set (model.predict on Test)
-   ↓
-Model Export & Deployment (joblib.dump)
+Visual End-to-End ML Pipeline Flowchart:
+
+  [RAW SOURCE DATA]
+          │
+          ▼
+  +─────────────────────────────────────────+
+  | Separate Features (X) and Target (y)   |
+  +─────────────────────────────────────────+
+          │
+          ▼
+  +─────────────────────────────────────────────────────────────+
+  | TRAIN / TEST SPLIT (SPLIT FIRST TO PREVENT DATA LEAKAGE!)   |
+  +──────────────────────────────┬──────────────────────────────+
+                                 │
+          ┌──────────────────────┴──────────────────────┐
+          ▼ (80% Data)                                  ▼ (20% Data)
+  [TRAINING SET: X_train, y_train]              [TEST SET: X_test, y_test]
+          │                                     [LOCKED IN VAULT - UNTOUCHED]
+          ▼                                             │
+  +─────────────────────────────────+                   │
+  | PREPROCESSING PIPELINE          |                   │
+  | 1. Missing Value Imputation     |                   │
+  | 2. Categorical Encoding (OHE)   |                   │
+  | 3. Feature Scaling (Standardize)|                   │
+  | * Call .fit_transform(X_train)  |                   │
+  +────────────────┬────────────────+                   │
+                   │                                    │
+                   ▼                                    │
+  [TRANSFORMED TRAINING FEATURES]                       │
+                   │                                    │
+                   ▼                                    │
+  +─────────────────────────────────+                   │
+  | MODEL TRAINING                  |                   │
+  | Algorithm: XGBoost / LogReg     |                   │
+  | * Call model.fit(X_train, y)    |                   │
+  +────────────────┬────────────────+                   │
+                   │                                    │
+                   ▼                                    │
+  +─────────────────────────────────+                   │
+  | K-FOLD CROSS-VALIDATION &       |                   │
+  | HYPERPARAMETER TUNING (Optuna)  |                   │
+  +────────────────┬────────────────+                   │
+                   │                                    │
+                   ▼                                    │
+  [BEST FITTED MODEL SELECTED]                          │
+                   │                                    │
+                   ▼                                    ▼
+  +─────────────────────────────────────────────────────────────+
+  | FINAL EVALUATION ON UNSEEN TEST SET                         |
+  | Apply .transform(X_test) ONLY (Never call .fit on Test!)    |
+  | Compute Metrics: ROC-AUC, F1-Score, Confusion Matrix        |
+  +──────────────────────────────┬──────────────────────────────+
+                                 │
+                                 ▼
+  +─────────────────────────────────────────────────────────────+
+  | MODEL SERIALIZATION & DEPLOYMENT                            |
+  | Save full pipeline to disk: joblib.dump(pipeline, 'model')  |
+  +─────────────────────────────────────────────────────────────+
 
 
 8.2 SUPERVISED LEARNING PARADIGMS
@@ -778,12 +815,18 @@ SUPERVISED LEARNING (Ground-truth y is known; model learns mapping X -> y):
 - Stratification (stratify=y):
     Preserves original class proportions in every split. Vital for imbalanced targets.
 
-- K-Fold Cross-Validation:
-    Splits training data into K equal folds.
-    Trains on K-1 folds, validates on the remaining 1 fold; repeats K times and averages scores.
+Visual Diagram: 5-Fold Cross-Validation Protocol
 
-- Stratified K-Fold:
-    K-Fold cross-validation that preserves class ratios within every single fold.
+  FULL DATASET:
+  |========================================================================|
+  
+  Iteration 1: [ FOLD 1: VAL ] [ FOLD 2: TRAIN ] [ FOLD 3: TRAIN ] [ FOLD 4: TRAIN ] [ FOLD 5: TRAIN ] -> Score 1
+  Iteration 2: [ FOLD 1: TRAIN ] [ FOLD 2: VAL ] [ FOLD 3: TRAIN ] [ FOLD 4: TRAIN ] [ FOLD 5: TRAIN ] -> Score 2
+  Iteration 3: [ FOLD 1: TRAIN ] [ FOLD 2: TRAIN ] [ FOLD 3: VAL ] [ FOLD 4: TRAIN ] [ FOLD 5: TRAIN ] -> Score 3
+  Iteration 4: [ FOLD 1: TRAIN ] [ FOLD 2: TRAIN ] [ FOLD 3: TRAIN ] [ FOLD 4: VAL ] [ FOLD 5: TRAIN ] -> Score 4
+  Iteration 5: [ FOLD 1: TRAIN ] [ FOLD 2: TRAIN ] [ FOLD 3: TRAIN ] [ FOLD 4: TRAIN ] [ FOLD 5: VAL ] -> Score 5
+
+  FINAL CROSS-VALIDATION SCORE = (Score 1 + Score 2 + Score 3 + Score 4 + Score 5) / 5
 
 
 8.4 DATA LEAKAGE & CLASS IMBALANCE STRATEGIES
@@ -795,6 +838,24 @@ Data Leakage:
   - Preprocessing Leakage: Fitting scalers or imputers on the full dataset before splitting.
   - Target Leakage: Including features that will not be available at prediction time.
   - Prevention: Always split first; encapsulate steps in Scikit-Learn Pipeline objects.
+
+Visual Architecture: Data Leakage Prevention Boundary
+
+  [RAW OBSERVATION DATA]
+            │
+  ==========│=================================== LEAKAGE DEFENSE WALL
+            ▼
+     [SPLIT DATA FIRST]
+       /          \
+      ▼            ▼
+  [TRAIN SET]    [TEST SET (LOCKED)]
+      │                │
+      ▼                │
+  fit_transform()      │
+  [Calculate mean/std] │
+      │                │
+      +----------------+----> transform() ONLY using train's mean/std
+                               (Test data NEVER influences parameters!)
 
 Class Imbalance:
   Occurs when one class heavily outnumbers another (e.g., 99% legitimate, 1% fraud).
@@ -844,6 +905,24 @@ Regularization adds a penalty to the loss function to shrink weights and stop ov
 3. ELASTIC NET (L1 + L2):
    - Loss = MSE + alpha * [ r * sum(|w_j|) + ((1-r)/2) * sum(w_j^2) ]
    - Balances Ridge and Lasso; effective when multiple features are correlated.
+
+Visual Geometric Comparison: L1 (Lasso) vs. L2 (Ridge) Constraints
+
+          L1 LASSO (Diamond Constraint)             L2 RIDGE (Circular Constraint)
+                  w2                                        w2
+                  ^                                         ^
+                  |                                         |     /---\
+                 /|\                                      / | \  /     \ OLS Contours
+                / | \  OLS Elliptical                    /  |  \/       \
+               /  |  \ Loss Contours                    |---+---\-------|--> w1
+       <------*---+---*------> w1                       \   |   /\     /
+        Corner \  |  /  \                                \  |  /  \---/
+       Touch    \ | /    \                                \---/     Tangent Contact
+       (w2 = 0)  \|/      \                                 |       (w1, w2 both != 0)
+                  v                                         v
+   Sharp diamond corners sit right on axes:         Smooth circle touches ellipse tangent:
+   Weights are driven to EXACTLY ZERO (Sparsity)    Weights shrink smoothly but NEVER exact 0
+
 
 
 9.3 REGRESSION EVALUATION METRICS
@@ -933,36 +1012,40 @@ Logistic Regression models the probability of binary class membership:
 
 10.4 CLASSIFICATION EVALUATION METRICS & CONFUSION MATRIX
 --------------------------------------------------------------------------------
-The Confusion Matrix:
-                 PREDICTED
-                 Class 0          Class 1
-ACTUAL   Class 0   True Negative    False Positive (Type I Error)
-CLASS              (TN)             (FP)
-         Class 1   False Negative   True Positive
-                   (FN - Type II)   (TP)
+Visual Confusion Matrix Architecture:
 
-Formulas:
-- Accuracy:
-    (TP + TN) / (TP + TN + FP + FN)
-    Caution: Deceptive on imbalanced data.
+                     ╔═══════════════════════════════════════════════╗
+                     ║               PREDICTED CLASS                 ║
+                     ╠═══════════════════════╦═══════════════════════╣
+                     ║    PREDICTED NEGATIVE ║    PREDICTED POSITIVE ║
+ ╔══════════╦════════╬═══════════════════════╬═══════════════════════╬═════════════════════════╗
+ ║          ║ ACTUAL ║  TRUE NEGATIVE (TN)   ║  FALSE POSITIVE (FP)  ║ Specificity =           ║
+ ║          ║ NEG    ║  Correct Rejection    ║  Type I Error         ║ TN / (TN + FP)          ║
+ ║  ACTUAL  ╠════════╬═══════════════════════╬═══════════════════════╬═════════════════════════╣
+ ║  CLASS   ║ ACTUAL ║  FALSE NEGATIVE (FN)  ║  TRUE POSITIVE (TP)   ║ Recall / Sensitivity =  ║
+ ║          ║ POS    ║  Type II Error (Miss) ║  Correct Hit          ║ TP / (TP + FN)          ║
+ ╚══════════╩════════╬═══════════════════════╬═══════════════════════╬═════════════════════════╝
+                     ║ NPV =                 ║ Precision =           ║ Accuracy =              ║
+                     ║ TN / (TN + FN)        ║ TP / (TP + FP)        ║ (TP+TN)/(TP+TN+FP+FN)   ║
+                     ╚═══════════════════════╩═══════════════════════╩═════════════════════════╝
 
-- Precision:
-    TP / (TP + FP)
-    Out of all predicted positives, how many were correct? Focus: Minimize False Positives (e.g., spam).
+Error Type Mapping:
+- Type I Error (False Positive): Innocent flagged as guilty (e.g., legitimate email marked Spam).
+- Type II Error (False Negative): Guilty allowed to walk free (e.g., patient with cancer told healthy).
+  * In healthcare and fraud detection, Type II is vastly more dangerous than Type I!
 
-- Recall (Sensitivity / True Positive Rate - TPR):
-    TP / (TP + FN)
-    Out of all actual positives, how many did we catch? Focus: Minimize False Negatives (e.g., cancer).
-
-- Specificity (True Negative Rate - TNR):
-    TN / (TN + FP)
-
-- False Positive Rate (FPR):
-    FP / (FP + TN) = 1 - Specificity
-
-- F1-Score:
-    Harmonic mean of Precision and Recall:
-    F1 = 2 * (Precision * Recall) / (Precision + Recall)
+Formulas & Engineering Trade-offs:
+- Accuracy = (TP + TN) / (TP + TN + FP + FN)
+    * Caution: Severely deceptive on imbalanced datasets. Predicting all zeros on a 99% 0 / 1% 1
+      dataset gives 99% accuracy despite 0% recall!
+- Precision = TP / (TP + FP)
+    * "When the model predicts positive, how often is it right?" Focus: Minimize False Positives.
+- Recall (Sensitivity / True Positive Rate - TPR) = TP / (TP + FN)
+    * "Out of all actual positives, what percentage did we find?" Focus: Minimize False Negatives.
+- Specificity (True Negative Rate - TNR) = TN / (TN + FP)
+- False Positive Rate (FPR) = FP / (FP + TN) = 1 - Specificity
+- F1-Score = 2 * (Precision * Recall) / (Precision + Recall)
+    * Harmonic mean balances Precision and Recall; penalizes extreme imbalance between the two.
 
 
 10.5 ROC & PRECISION-RECALL CURVES
@@ -1298,6 +1381,28 @@ THE TRADEOFF DYNAMICS:
 - Optimal Model Complexity:
     * Occurs at the sweet spot where the sum of (Bias^2 + Variance) is MINIMIZED.
 
+Visual Diagram: The Bias-Variance Tradeoff Curve
+
+   Error Level
+       ^
+       |
+  High |  \                     TOTAL TEST ERROR                     /
+       |   \                  (Bias^2 + Variance + Noise)           /
+       |    \                      __-------__                     /
+       |     \                 _--'           '--_                /  Variance
+       |  Bias^2             /                     \             /  (Overfitting)
+       |       \            /   OPTIMAL COMPLEXITY  \           /
+       |        \          |       [SWEET SPOT]      |         /
+       |         \         |            |            |        /
+       |          '--___   |            |            |   ___--'
+       |                '--|------------v------------|--'
+       |                   \                         /
+       |--------------------\-----------------------/---------------- Irreducible Noise
+   Low |_____________________\_____________________/_________________
+       0               Underfitting            Overfitting           High
+                           <--- MODEL COMPLEXITY (Degrees / Depth) --->
+
+
 
 16.2 UNDERFITTING VS. OVERFITTING DIAGNOSTIC INDICATORS
 --------------------------------------------------------------------------------
@@ -1407,6 +1512,28 @@ The three primary ensemble paradigms operate on distinct statistical mechanisms:
    - Combination: Out-of-fold predictions from base models are used as features to train
      a secondary META-LEARNER (e.g., Logistic Regression or Ridge).
    - Primary Purpose: Blends complementary algorithmic inductive biases.
+
+Visual Architectural Comparison:
+
+1. BAGGING (Parallel Bootstrap):
+   [Training Data] ──┬──> [Bootstrap Sample 1] ──> [Tree 1] ──┐
+                     ├──> [Bootstrap Sample 2] ──> [Tree 2] ──┼──> [Majority Vote / Average] ──> Final Pred
+                     └──> [Bootstrap Sample B] ──> [Tree B] ──┘
+                     (Parallel Training: Lowers Variance)
+
+2. BOOSTING (Sequential Residual Correction):
+   [Training Data] ──> [Model 1] ──> Compute Errors ──> [Model 2 (Focus on Errors)]
+                                                             │
+                                                             ▼
+   Final Output <── [Weighted Sum of All Models] <── Compute Errors ──> [Model 3 (Residuals)]
+                     (Sequential Training: Lowers Bias)
+
+3. STACKING (Meta-Learner Generalization):
+   [Training Data] ──┬──> [Model A: Random Forest] ──> Pred A ──┐
+                     ├──> [Model B: XGBoost]       ──> Pred B ──┼──> [Meta-Learner: LogReg] ──> Final Pred
+                     └──> [Model C: Support Vector]──> Pred C ──┘
+                     (Hierarchical Heterogeneous Ensembling)
+
 
 
 17.2 ADABOOST (ADAPTIVE BOOSTING): SAMPLE REWEIGHTING & STUMP AGGREGATION
@@ -1751,6 +1878,45 @@ Optuna is the modern standard Python framework for Bayesian Hyperparameter Optim
    - `trial.suggest_int("max_depth", 3, 12)`: Discrete integer range.
    - `trial.suggest_categorical("booster", ["gbtree", "dart"])`: Categorical selection.
 
+Visual Optuna Bayesian Optimization Loop:
+
+          ┌────────────────────────────────────────────────────────┐
+          │                   OPTUNA STUDY                         │
+          └──────────────────────────┬─────────────────────────────┘
+                                     │
+                                     ▼
+                      ┌──────────────────────────────┐
+                      │    TPE Sampler Suggests      │ <────────────────┐
+                      │    Next Hyperparameters      │                  │
+                      └──────────────┬───────────────┘                  │
+                                     │                                  │
+                                     ▼                                  │
+                      ┌──────────────────────────────┐                  │
+                      │     Launch New TRIAL         │                  │
+                      │    Train Model on Folds      │                  │
+                      └──────────────┬───────────────┘                  │
+                                     │                                  │
+                       Step t Validation Score Check                    │
+                                     │                                  │
+                  ┌──────────────────┴──────────────────┐               │
+                  ▼                                     ▼               │
+         Score < Median Threshold?             Score >= Median Threshold│
+                  │                                     │               │
+                  ▼ [YES]                               ▼ [NO]          │
+        ┌───────────────────┐                 ┌───────────────────┐     │
+        │ PRUNER: KILL TRIAL│                 │ COMPLETE TRAINING │     │
+        │ Save 80% Compute  │                 │ Return Final Score│     │
+        └─────────┬─────────┘                 └─────────┬─────────┘     │
+                  │                                     │               │
+                  └─────────────────┬───────────────────┘               │
+                                    │                                   │
+                                    ▼                                   │
+                      ┌──────────────────────────────┐                  │
+                      │ Update Surrogate P(θ | y)    │ ─────────────────┘
+                      │ History Database (RDB/SQLite)│
+                      └──────────────────────────────┘
+
+
 
 ================================================================================
 20. MACHINE LEARNING EXPERIMENT TRACKING: MLFLOW
@@ -1780,6 +1946,30 @@ MLflow provides four core open-source components for managing the full ML lifecy
    XGBoost, ONNX) to be served via REST API, Batch Inference, or cloud deployment.
 4. MLFLOW MODEL REGISTRY:
    A centralized model database providing versioning, lineage, and lifecycle stage transitions.
+
+Visual Architecture: MLflow Production Lifecycle Platform
+
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │                           MLFLOW ECOSYSTEM                             │
+  ├────────────────────────────────────────────────────────────────────────┤
+  │                                                                        │
+  │  [ 1. MLFLOW TRACKING ]                                                │
+  │  Log: Params, Metrics (Loss/AUC), Artifacts (.pkl, plots), Git SHA     │
+  │     │                                                                  │
+  │     ▼                                                                  │
+  │  [ 2. MLFLOW MODELS ]                                                  │
+  │  Standard Packaging: model.pkl + conda.yaml + MLmodel descriptor       │
+  │     │                                                                  │
+  │     ▼                                                                  │
+  │  [ 3. MODEL REGISTRY ]                                                 │
+  │     ├── Version 1 (Archived)                                           │
+  │     ├── Version 2 (Staging: Automated Smoke / Integration Tests)       │
+  │     └── Version 3 (Production: Live Inference REST API / Batch)        │
+  │                                                                        │
+  │  [ 4. MLFLOW PROJECTS ]                                                │
+  │  Reproducible Docker / Conda environment execution across multi-clouds │
+  └────────────────────────────────────────────────────────────────────────┘
+
 
 
 20.3 PARAMETERS, METRICS, ARTIFACTS & AUTOLOGGING

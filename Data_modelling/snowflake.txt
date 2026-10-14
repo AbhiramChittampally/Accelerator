@@ -1,0 +1,681 @@
+================================================================================
+      SNOWFLAKE, SNOWSQL & CORTEX (WEEK 6) MASTER REFERENCE & STUDY NOTES
+================================================================================
+Curriculum: KMIT Talent Accelerator Program (TAP) 2026 - Week 6 (Days 26 - 31)
+Components: Cloud Data Warehouse, 3-Layer Architecture, Micro-Partitions & Pruning,
+            Virtual Warehouses, Table Types, Stages & COPY INTO, Snowpipe Ingest,
+            Time Travel, Fail-Safe & Zero-Copy Cloning, Clustering & MVs,
+            Enterprise Security (RBAC, Dynamic Masking, Row Access Policies),
+            Semi-Structured Data (VARIANT, LATERAL FLATTEN), Streams (CDC),
+            Tasks & DAGs, UDFs & Stored Procedures, Python Connector & Snowpark,
+            Snowpark ML, Cortex GenAI LLMs, Vector Search & RAG, Cost Governance,
+            SnowPro Core Certification Preparation & 20-Part Capstone.
+Code File : c:\Users\Abhiram Chittampally\Documents\ACC\Data_modelling\snowflake.sql
+Notes File: c:\Users\Abhiram Chittampally\Documents\ACC\Data_modelling\snowflake.txt
+================================================================================
+
+
+TABLE OF CONTENTS & ROADMAP
+================================================================================
+1. DAY 26: GETTING STARTED WITH SNOWFLAKE (B1 - B5)
+   - 1.1 ELI5: The On-Demand Magical Kitchen (Cloud DW vs On-Premises)
+   - 1.2 Architectural Foundation: The Separation of Storage and Compute
+   - 1.3 Snowflake Editions & Free Trial Setup (Standard, Enterprise, Business Critical, VPS)
+   - 1.4 SnowSQL CLI: Installation, Configuration Profiles & Headless Scripting
+   - 1.5 The Snowflake Object Hierarchy (Account -> Database -> Schema -> Object)
+   - 1.6 Visual Architecture Diagram: Object Hierarchy & Decoupled Compute
+
+2. DAY 27: FOUNDATIONS, MICRO-PARTITIONS & DATA LOADING (5.1 - 5.5)
+   - 2.1 The Three-Layer Architecture: Cloud Services, Query Processing, Storage
+   - 2.2 Micro-Partitions & Pruning Mechanics: Why Some Queries are 10,000x Faster
+   - 2.3 Sargable vs Non-Sargable Predicates (The Hidden Partition Pruning Trap)
+   - 2.4 Virtual Warehouse Sizing: T-Shirt Sizing, Auto-Suspend & Auto-Resume
+   - 2.5 Scale-Up vs Scale-Out (Multi-Cluster Warehouses for Concurrency Spikes)
+   - 2.6 Table Types Matrix: Permanent, Transient, Temporary, External & Iceberg
+   - 2.7 Stages (User, Table, Internal Named, External S3) & File Formats
+   - 2.8 Production COPY INTO: Error Handling, ON_ERROR, VALIDATION_MODE & Monitoring
+   - 2.9 Visual Flowcharts: 3-Layer Query Lifecycle & Micro-Partition Columnar Layout
+
+3. DAY 28: ADVANCED FEATURES & SEMI-STRUCTURED DATA (5.6 - 5.10)
+   - 3.1 Snowpipe: Serverless Event-Driven Continuous Ingestion (SQS/EventGrid)
+   - 3.2 Time Travel, UNDROP, and Fail-Safe Governance (Data Lifecycle)
+   - 3.3 Zero-Copy Cloning: Copy-on-Write Physics, Dev/Test Isolation & Point-in-Time Clones
+   - 3.4 Performance Tuning: Explicit Clustering Keys, Query Profile Diagnosis & Materialized Views
+   - 3.5 Enterprise Security: Role-Based Access Control (RBAC), Future Grants & Least Privilege
+   - 3.6 Data Masking Policies & Row Access Policies (Single Dataset, Multiple Audiences)
+   - 3.7 Semi-Structured Mastery: VARIANT, OBJECT, ARRAY, and LATERAL FLATTEN
+   - 3.8 Visual Workflows: Snowpipe Event Architecture & Zero-Copy Clone Partition Sharing
+
+4. DAY 29: REAL-WORLD PATTERNS & PIPELINES (5.11 - 5.15)
+   - 4.1 Search Optimization Service (SOS): Point-Lookup Acceleration at Scale
+   - 4.2 Streams: Native Change Data Capture (CDC), Offsets & SCD Type 2 Pipelines
+   - 4.3 Tasks & Task DAGs: Scheduling, Multi-Step Dependencies (AFTER), and Serverless Compute
+   - 4.4 User-Defined Functions (UDFs): SQL Inlining, JavaScript Sandbox & Python Snowpark UDFs
+   - 4.5 Stored Procedures: Snowflake Scripting (Control Flow, Dynamic SQL, Error Logging)
+   - 4.6 Python Connector (DB-API 2.0) vs Snowpark Python (DataFrames at Rest)
+   - 4.7 Visual Diagrams: Continuous CDC Stream-Task Flow & Task DAG Fan-Out/Fan-In
+
+5. DAY 30: SNOWPARK ML, CORTEX GENAI & COST GOVERNANCE (5.16 - 5.18)
+   - 5.1 Snowpark ML: In-Database Preprocessing, XGBoost Estimator & Model Registry
+   - 5.2 Cortex ML Functions: Automated Time-Series FORECAST & ANOMALY_DETECTION
+   - 5.3 Cortex LLM Functions: COMPLETE, SUMMARIZE, TRANSLATE, SENTIMENT, CLASSIFY_TEXT
+   - 5.4 Vector Search, Embeddings (EMBED_TEXT_768) & In-Database RAG Pipelines
+   - 5.5 Enterprise FinOps & Cost Optimization: Warehouse Right-Sizing, Resource Monitors, Tagging
+   - 5.6 SnowPro Core Certification Prep: 6 Domains, Study Blueprint, Pitfalls & 12 Practice Q&A
+   - 5.7 Visual Workflows: In-Database Cortex RAG Loop & FinOps Cost Levers Pyramid
+
+6. DAY 31: CAPSTONE SYNTHESIS (MANGO MART ENTERPRISE PLATFORM)
+   - 6.1 The 20-Part Architecture Review
+   - 6.2 Senior Data Platform Architect Final Checklist
+================================================================================
+
+
+================================================================================
+SECTION 1: DAY 26 - GETTING STARTED WITH SNOWFLAKE (B1 - B5)
+================================================================================
+
+1.1 EXPLAIN LIKE I'M 5: THE ON-DEMAND MAGICAL KITCHEN (CLOUD DW VS ON-PREMISES)
+Imagine you want to bake a birthday cake for your family.
+- On-Premises Warehouse (The Old Way):
+  You must buy a gigantic commercial bakery building, buy 10 industrial ovens, 
+  and pay for electricity 24 hours a day, 365 days a year. Even when you are 
+  sleeping or only baking one small cookie, you pay for the entire building! And 
+  if one day 500 relatives arrive and you need 11 ovens, you are stuck - you cannot 
+  fit an 11th oven without spending 6 months expanding the brick walls.
+- Snowflake Cloud Data Warehouse (The Modern Way):
+  You keep all your ingredients (flour, sugar, eggs) in a huge, dirt-cheap cloud 
+  pantry that has infinite space (Cloud Storage). Whenever you want to bake, you 
+  wave a magic wand: poof! A clean, modern oven of the exact size you need appears 
+  (Virtual Warehouse). You bake your cake in 5 minutes, turn the oven off, and only 
+  pay for the 5 minutes of electricity you used. If 500 guests arrive, you wave 
+  your wand and instantly summon 10 ovens in parallel!
+
+
+1.2 WHY SNOWFLAKE? THE SEPARATION OF STORAGE AND COMPUTE
+For 30 years, data warehouses (Teradata, Netezza, early AWS Redshift) used a 
+"Shared-Nothing MPP" architecture:
+- Every physical server had its own hard disks and its own CPUs bundled together.
+- The 3 Incurable Pains of Coupled Architecture:
+  1. Rigid Scaling: If your company's data grew from 10 TB to 50 TB, but you ran 
+     the exact same 5 daily reports, you were forced to buy 20 more CPU servers 
+     just to get more hard drive space. You paid for expensive CPUs you never used.
+  2. Resource Contention: At 9:00 AM, the finance team opens executive dashboards. 
+     At the same time, the data science team kicks off a massive 4-hour machine 
+     learning feature extraction job. Both queries fought for the same CPU cores, 
+     causing the CFO's dashboard to freeze and time out.
+  3. Painful Resizing: Adding a new node required re-distributing terabytes of data 
+     across the network (data rebalancing), locking tables for hours or days.
+
+Snowflake's Foundational Breakthrough (Multi-Cluster Shared-Data):
+- Snowflake completely decoupled Storage from Compute:
+  1. Storage Layer: All data lives permanently in cheap, scalable cloud object 
+     storage (AWS S3, Azure Blob, or Google Cloud Storage). There is only ONE 
+     canonical copy of the data.
+  2. Compute Layer: Virtual Warehouses (clusters of compute nodes) are completely 
+     stateless. You can spin up a Medium warehouse for Analytics, an X-Large 
+     warehouse for Nightly ETL, and a Small warehouse for Data Science.
+  3. Zero Contention: All three warehouses read from the same underlying data 
+     at the exact same time without slowing each other down!
+
+--------------------------------------------------------------------------------
+VISUAL WORK DIAGRAM: COUPLED MPP VS SNOWFLAKE MULTI-CLUSTER SHARED-DATA
+--------------------------------------------------------------------------------
+
+  TRADITIONAL COUPLED MPP (Shared-Nothing)     SNOWFLAKE MULTI-CLUSTER SHARED-DATA
+  =======================================     ===================================
+  [User 1]   [User 2]   [User 3]              [BI Team]      [ETL Team]    [Data Science]
+      \          |          /                     |               |               |
+       v         v         v                      v               v               v
+  +-----------------------------+          +------------+  +------------+  +------------+
+  |  Node 1   Node 2   Node 3   |          |  BI_WH (M) |  | ETL_WH (L) |  |  DS_WH (S) |
+  |  [CPU]    [CPU]    [CPU]    |          |  [Compute] |  |  [Compute] |  |  [Compute] |
+  |  [Disk]   [Disk]   [Disk]   |          +------------+  +------------+  +------------+
+  +-----------------------------+                 \              |              /
+     * All workloads fight for CPUs                 v            v             v
+     * Must add CPU to add Disk            +--------------------------------------------+
+     * Resizing takes days of downtime     |       CENTRALIZED CLOUD STORAGE            |
+                                           |    (AWS S3 / Azure Blob / GCS)             |
+                                           |  - Micro-Partitions (Columnar, Encrypted)  |
+                                           +--------------------------------------------+
+                                             * Independent compute pools
+                                             * Zero contention; pay per second
+                                             * Auto-suspends when idle
+
+
+1.3 SNOWFLAKE EDITIONS & FREE TRIAL SETUP
+Snowflake delivers the same core SQL engine across four progressive tiers:
+
++-------------------+-----------------------------------------------------------+
+| Edition           | Distinctive Capabilities & Enterprise Features            |
++-------------------+-----------------------------------------------------------+
+| 1. Standard       | Core SQL, all data types, up to 1-day Time Travel,        |
+|                   | standard support. Great for learning and small workloads. |
++-------------------+-----------------------------------------------------------+
+| 2. Enterprise     | Up to 90 days of Time Travel, Multi-Cluster Warehouses    |
+|                   | (auto-scaling out), Materialized Views, Search            |
+|                   | Optimization Service, Dynamic Data Masking policies.      |
++-------------------+-----------------------------------------------------------+
+| 3. Business       | Everything in Enterprise PLUS: HIPAA & PCI-DSS compliance,|
+|    Critical       | Tri-Secret Secure (Customer-Managed Keys), Business        |
+|                   | Continuity / Failover across regions, PrivateLink.        |
++-------------------+-----------------------------------------------------------+
+| 4. Virtual Private| Everything in Business Critical PLUS dedicated, physically|
+|    Snowflake (VPS)| isolated deployment environment. Zero shared infrastructure|
++-------------------+-----------------------------------------------------------+
+
+Exam Tip: Standard edition provides a maximum of 1 day of Time Travel. 
+Enterprise and above provide up to 90 days.
+
+
+1.4 SNOWSQL CLI: SCRIPTING & AUTOMATION
+While Snowsight (the web interface) is great for interactive exploration, real-world 
+data engineering pipelines require headless command-line automation via SnowSQL.
+
+SnowSQL Configuration Pattern (~/.snowsql/config):
+```ini
+[connections.mango_prod]
+accountname = ab12345.ap-south-1.aws
+username = DATA_ENGINEER_SVC
+authenticator = SNOWFLAKE_JWT
+private_key_path = ~/.snowsql/rsa_key.p8
+dbname = MANGO_MART
+schemaname = RETAIL
+warehousename = ETL_WH
+rolename = SYSADMIN
+```
+
+Common SnowSQL Terminal Commands:
+- `snowsql -c mango_prod` : Interactive prompt session.
+- `snowsql -c mango_prod -f load_data.sql` : Non-interactive script execution.
+- `snowsql -c mango_prod -q "SELECT CURRENT_VERSION();"` : Execute one-shot query.
+- `snowsql -c mango_prod -f script.sql -D BATCH_ID=101 -o output_format=csv` : Pass variables.
+
+
+1.5 THE SNOWFLAKE OBJECT HIERARCHY
+Everything in Snowflake is structured inside a clean, logical administrative tree:
+1. Account: The top-level tenant (identified by locator and region URL).
+2. Database: A logical group of schemas (e.g., `MANGO_MART`).
+3. Schema: A logical namespace inside a database (e.g., `RAW`, `RETAIL`, `ANALYTICS`).
+4. Schema Objects: Tables, Views, Stages, Streams, Tasks, UDFs, Stored Procedures.
+5. Account-Level Objects (NOT inside databases!): Virtual Warehouses, Users, Roles, 
+   Resource Monitors, Network Policies.
+
+Fully Qualified Name Standard: `DATABASE.SCHEMA.OBJECT`
+Example: `MANGO_MART.RETAIL.DIM_CUSTOMER`
+
+--------------------------------------------------------------------------------
+VISUAL FLOWCHART: SNOWFLAKE OBJECT HIERARCHY & SESSION RESOLUTION
+--------------------------------------------------------------------------------
+
+                           ACCOUNT (ab12345.ap-south-1.aws)
+                                          |
+        +---------------------------------+---------------------------------+
+        |                                 |                                 |
+        v                                 v                                 v
+   [DATABASES]                      [WAREHOUSES]                         [ROLES]
+        |                           (Account-Level)                  (Account-Level)
+        +--> MANGO_MART                   |                                 |
+        |      |                          +--> ETL_WH (Large)               +--> ACCOUNTADMIN
+        |      +--> Schema: RAW           +--> BI_WH (Medium)               +--> SYSADMIN
+        |      |      +--> Stg Tables     +--> ML_WH (Large)                +--> SECURITYADMIN
+        |      |      +--> Stages                                           +--> ANALYST
+        |      +--> Schema: RETAIL
+        |      |      +--> Dim Tables
+        |      +--> Schema: ANALYTICS
+        |             +--> Fact Tables
+        |             +--> Views, MVs
+        |
+        +--> SNOWFLAKE (System audit / ACCOUNT_USAGE)
+        +--> SNOWFLAKE_SAMPLE_DATA (TPC-H / TPC-DS benchmarks)
+
+
+================================================================================
+SECTION 2: DAY 27 - ARCHITECTURE, MICRO-PARTITIONS & DATA LOADING (5.1 - 5.5)
+================================================================================
+
+2.1 THE THREE-LAYER ARCHITECTURE IN DETAIL
+Snowflake's architecture is composed of three independently scalable layers:
+
+1. Cloud Services Layer (The Brain):
+   - Always-on collection of global services running across multiple availability zones.
+   - Responsibilities: User authentication, session management, Role-Based Access 
+     Control (RBAC), metadata catalog management, SQL parsing, query compilation, 
+     cost-based query optimization, and transaction ACID coordination.
+   - Free Tier Rule: Cloud Services usage is free of charge up to 10% of the total 
+     daily compute credits consumed by virtual warehouses!
+
+2. Query Processing Layer (The Muscle):
+   - Where the actual computational work of SQL queries happens.
+   - Executed by Virtual Warehouses: independent MPP compute clusters comprised 
+     of cloud virtual machines equipped with high-speed CPUs and local SSD caches.
+   - Stateless: If a warehouse is turned off or resized, zero data is lost.
+
+3. Storage Layer (The Memory):
+   - Backed by cloud object storage (AWS S3, Azure Blob, GCS).
+   - Snowflake automatically encrypts (AES-256), compresses, and stores data into 
+     proprietary columnar files called **Micro-Partitions**.
+
+--------------------------------------------------------------------------------
+VISUAL WORKFLOW: END-TO-END QUERY FLOW THROUGH THE THREE LAYERS
+--------------------------------------------------------------------------------
+
+  [Client Application / Snowsight / SnowSQL]
+                    |
+                    | 1. Submits SQL Query
+                    v
+  +-----------------------------------------------------------------------------+
+  | 1. CLOUD SERVICES LAYER (The Brain)                                         |
+  |    * Authenticates user role and privileges                                 |
+  |    * Parses SQL text into parse tree                                        |
+  |    * Optimizer inspects Micro-Partition MIN/MAX metadata                   |
+  |    * Pruning eliminates non-matching partitions (e.g. 3,968 of 4,000 skipped|
+  |    * Dispatches execution plan to assigned Virtual Warehouse                |
+  +-----------------------------------------------------------------------------+
+                    |
+                    | 2. Dispatches physical scan & execution plan
+                    v
+  +-----------------------------------------------------------------------------+
+  | 2. QUERY PROCESSING LAYER (The Muscle - Virtual Warehouse: ETL_WH)          |
+  |    * Wakes up from auto-suspend in < 1 second                               |
+  |    * Compute Node 1 scans surviving partition A (hits local SSD cache)      |
+  |    * Compute Node 2 scans surviving partition B (reads from remote S3)      |
+  |    * Executes parallel Hash Joins, Aggregations, and Window Functions       |
+  |    * Streams tabular result back to Services layer                          |
+  +-----------------------------------------------------------------------------+
+                    |
+                    | 3. Fetches un-cached Micro-Partitions
+                    v
+  +-----------------------------------------------------------------------------+
+  | 3. STORAGE LAYER (The Memory - Cloud Object Storage S3/GCS/Blob)            |
+  |    * Stores encrypted, immutable, compressed micro-partitions (16 MB)       |
+  |    * Returns requested columnar bytes for the 32 surviving partitions       |
+  +-----------------------------------------------------------------------------+
+
+
+2.2 MICRO-PARTITIONS & PARTITION PRUNING
+A Micro-Partition is the fundamental physical unit of storage in Snowflake:
+- Size: 50 MB to 500 MB of uncompressed raw data, compressed down to ~16 MB on disk.
+- Pure Columnar Layout: Each column is stored contiguously and compressed with 
+  specialized algorithms (e.g., RLE for low cardinality, delta encoding for timestamps).
+- Immutability: Micro-partitions are write-once. An `UPDATE` or `DELETE` never 
+  modifies an existing file; it writes new micro-partitions and marks old ones as 
+  deleted in metadata.
+- Automatic Metadata Collection: For EVERY column in EVERY micro-partition, the 
+  Cloud Services layer automatically collects:
+  * Minimum value (`MIN`)
+  * Maximum value (`MAX`)
+  * Number of distinct values (`DISTINCT_COUNT`)
+  * Number of NULL values (`NULL_COUNT`)
+
+How Partition Pruning Works:
+When a query executes:
+`SELECT SUM(net_revenue) FROM fact_sales WHERE date_key BETWEEN 20261001 AND 20261005;`
+1. Before spinning up a single CPU core, Cloud Services inspects the metadata of all 
+   4,000 micro-partitions in the table.
+2. If Partition #100 has `MIN = 20260101` and `MAX = 20260115`, it is physically 
+   impossible for matching rows to exist in it. Snowflake skips it entirely!
+3. Only the 10 micro-partitions whose `MIN` and `MAX` overlap the range are scanned.
+4. Result: 99.75% of the table is skipped before execution starts!
+
+
+2.3 SARGABLE VS NON-SARGABLE PREDICATES
+"Sargable" stands for **S**earch **Arg**ument **Able**.
+A query predicate is sargable if the database engine can take advantage of metadata 
+indexes and partition pruning.
+
+- NON-SARGABLE (Pruning Killed):
+  `WHERE TO_VARCHAR(sale_timestamp, 'YYYY-MM') = '2026-10'`
+  Because the function `TO_VARCHAR()` wraps the column, the optimizer cannot compare 
+  it against partition MIN/MAX values. All 40,000 partitions must be decrypted and scanned.
+- SARGABLE (Pruning Enabled):
+  `WHERE sale_timestamp >= '2026-10-01 00:00:00' AND sale_timestamp < '2026-11-01 00:00:00'`
+  The bare column allows instant metadata evaluation, scanning only 5 partitions.
+
+
+2.4 VIRTUAL WAREHOUSE SIZING & AUTO-SUSPEND PLAYBOOK
+Snowflake Virtual Warehouses use a linear T-shirt scaling ladder:
+
++-------+-------+------------------+--------------------------------------------+
+| Size  | Nodes | Credits / Hour   | Optimal Workload Fit                       |
++-------+-------+------------------+--------------------------------------------+
+| X-Small (XS) | 1 | 1 credit/hr   | Light ELT, Snowpipe, dev exploration       |
+| Small (S)    | 2 | 2 credits/hr  | Standard analytical reports, light batch   |
+| Medium (M)   | 4 | 4 credits/hr  | Typical BI dashboards, moderate aggregations|
+| Large (L)    | 8 | 8 credits/hr  | Heavy nightly batch transforms, large joins|
+| X-Large (XL) | 16| 16 credits/hr | Multi-billion row scans, complex ML tasks  |
+| 2XL - 6XL    |32-512| 32-512 cr/hr| Massive enterprise data loads, petabyte PB |
++-------+-------+------------------+--------------------------------------------+
+
+Scale-Up vs Scale-Out:
+- Scale-Up (Bigger Size: M -> L -> XL):
+  Doubles CPU nodes in the cluster. Helps a SINGLE heavy, complex query run faster.
+- Scale-Out (Multi-Cluster: 1 -> 2 -> 4 clusters):
+  Spawns additional identical clusters of the same size. Helps HUNDREDS OF CONCURRENT 
+  USERS execute queries without getting stuck in a queue.
+
+Auto-Suspend Discipline:
+- Production Default: `AUTO_SUSPEND = 60` (1 minute).
+- The 60-Second Rule: When a warehouse resumes, Snowflake charges a minimum of 
+  60 seconds of compute. Afterward, billing is per-second.
+- If `AUTO_SUSPEND = 600` (10 minutes), an idle warehouse sits burning credits for 
+  9.5 minutes of complete inactivity after every sporadic query!
+
+
+2.5 TABLE TYPES COMPREHENSIVE COMPARISON
+
++--------------+------------------+-------------+-------------+---------------------------+
+| Table Type   | Scope & Lifetime | Time Travel | Fail-Safe   | Primary Production Use    |
++--------------+------------------+-------------+-------------+---------------------------+
+| PERMANENT    | Persistent       | 1 - 90 days | 7 days      | Production facts and dims |
+| TRANSIENT    | Persistent       | 0 - 1 day   | NO Fail-Safe| ETL staging, intermediate |
+| TEMPORARY    | Session-only     | 0 - 1 day   | NO Fail-Safe| Complex multi-step scripts|
+| EXTERNAL     | Persistent meta  | None        | None        | Querying raw data lake S3 |
+| ICEBERG      | Open format      | Via Iceberg | Via Iceberg | Open lakehouse governance |
++--------------+------------------+-------------+-------------+---------------------------+
+
+
+2.6 PRODUCTION DATA LOADING: STAGES & COPY INTO
+Data loading into Snowflake follows a strict 3-tier sequence:
+`Source Files` -> `Stage (@stage_name)` -> `COPY INTO target_table`
+
+Error Handling Options (`ON_ERROR`):
+- `ABORT_STATEMENT` (Default): Any error aborts the entire load; zero rows inserted. 
+  Mandatory for financial ledgers where atomic consistency is required.
+- `CONTINUE`: Skips bad rows and loads valid ones. (Dangerous without monitoring alerts!).
+- `SKIP_FILE`: Abandons the entire file if a single bad row is found; continues other files.
+- `SKIP_FILE_10%`: Skips file only if more than 10% of rows fail parsing. (Production standard).
+
+Dry-Run Validation (`VALIDATION_MODE`):
+- `VALIDATION_MODE = 'RETURN_ERRORS'` : Validates file syntax and returns every error 
+  without writing a single row to the table.
+
+
+================================================================================
+SECTION 3: DAY 28 - ADVANCED FEATURES & SEMI-STRUCTURED (5.6 - 5.10)
+================================================================================
+
+3.1 SNOWPIPE: SERVERLESS CONTINUOUS INGESTION
+Snowpipe is Snowflake's automated continuous loading service:
+- How it Works:
+  1. Microservices or IoT devices write small data files (CSV/JSON/Parquet) into an S3 bucket.
+  2. S3 sends an `s3:ObjectCreated:*` event notification to an Amazon SQS queue.
+  3. A Snowflake PIPE object (`AUTO_INGEST = TRUE`) listens to that SQS queue.
+  4. Snowpipe automatically spins up Snowflake-managed serverless compute and loads 
+     the file into the landing table within 60 to 120 seconds.
+- Why It Beats Batch COPY INTO for Streaming:
+  Batch COPY INTO requires a running virtual warehouse (paying 60-second minimums). 
+  Snowpipe is billed strictly per file loaded plus the fractions of compute seconds 
+  used. For continuous, small files, Snowpipe is 5x to 10x cheaper!
+
+--------------------------------------------------------------------------------
+VISUAL WORKFLOW: EVENT-DRIVEN SNOWPIPE ARCHITECTURE
+--------------------------------------------------------------------------------
+
+  [Application / Web Server]
+             |
+             | 1. Writes order JSON file every few seconds
+             v
+  [AWS S3 Bucket: s3://mango-inbound/orders/]
+             |
+             | 2. S3 ObjectCreated Event
+             v
+  [Amazon SQS Queue (Snowflake Notification Channel)]
+             |
+             | 3. Event notification notifies Snowpipe
+             v
+  [Snowflake PIPE: pipe_orders] (Serverless Compute)
+             |
+             | 4. Executes COPY INTO on file
+             v
+  [Target Table: raw_orders_stream (VARIANT)]
+             |
+             +---> [Stream on Table] ---> [Scheduled Task] ---> [Analytics Fact]
+
+
+3.2 TIME TRAVEL & FAIL-SAFE DISASTER RECOVERY
+Snowflake provides continuous data versioning without traditional backup dumps:
+
+1. Time Travel:
+   - Self-service historical SQL querying using `AT` or `BEFORE` clauses.
+   - Allows querying past table states by Timestamp, Offset (seconds ago), or Query ID.
+   - Enables `UNDROP TABLE`, `UNDROP SCHEMA`, `UNDROP DATABASE` instantly.
+
+2. Fail-Safe:
+   - A non-configurable 7-day period that begins immediately AFTER Time Travel expires.
+   - Fail-Safe data cannot be queried via SQL. It is accessible solely by Snowflake 
+     Support for disaster recovery (e.g., catastrophic hardware failure or ransomware).
+   - Only PERMANENT tables have Fail-Safe.
+
+
+3.3 ZERO-COPY CLONING: COPY-ON-WRITE PHYSICS
+When you execute:
+`CREATE TABLE dev_customer CLONE prod_customer;`
+- Speed: Takes 2 to 3 seconds, even if `prod_customer` is 500 Terabytes!
+- Storage Cost: Exactly ZERO bytes of new storage are allocated.
+- The Secret: Snowflake simply creates new metadata pointers referencing the 
+  SAME immutable micro-partitions of the source table.
+- Copy-on-Write: When developers insert, update, or delete rows in `dev_customer`, 
+  Snowflake writes NEW micro-partitions containing the modifications. Unchanged 
+  micro-partitions remain shared between both tables.
+
+
+3.4 PERFORMANCE TUNING: CLUSTERING KEYS & MATERIALIZED VIEWS
+When tables grow beyond 100 GB (billions of rows), natural load order may not 
+align with query filtering patterns:
+- Clustering Keys: `ALTER TABLE fact_sales CLUSTER BY (store_key, date_key);`
+  Tells Snowflake's background serverless Automatic Clustering service to rewrite 
+  micro-partitions so that rows with identical store and date values are colocated.
+- Materialized Views (MVs):
+  Pre-computes and physically stores aggregated results (e.g., daily sales by store).
+  Unlike standard views (which re-run the underlying SQL query every time), an MV 
+  returns pre-computed rows in milliseconds, automatically kept fresh as the base 
+  table receives inserts.
+
+
+3.5 ENTERPRISE SECURITY: RBAC, MASKING POLICIES & ROW ACCESS POLICIES
+Snowflake implements a multi-tiered security perimeter:
+1. Role-Based Access Control (RBAC):
+   - Privileges are never granted directly to individual users.
+   - Hierarchy: Functional Roles (`reader_retail`) -> Persona Roles (`analyst`) -> System Roles (`SYSADMIN`).
+   - `GRANT ... ON FUTURE TABLES` ensures new tables automatically inherit proper security.
+2. Dynamic Data Masking (Column-Level):
+   - Protects sensitive PII (email, phone, credit card numbers) using a SQL masking policy.
+   - An authorized data engineer sees `priya@example.com`, while an analyst sees `p***@example.com`.
+3. Row Access Policies (Row-Level):
+   - Filters rows transparently at query runtime based on `CURRENT_ROLE()`.
+   - A Regional Sales Manager in the South territory automatically sees ONLY South-region transactions.
+
+
+3.6 SEMI-STRUCTURED DATA: VARIANT & LATERAL FLATTEN
+Snowflake provides native, first-class support for JSON, Parquet, and Avro via 
+the `VARIANT` data type (storing up to 16 MB per value):
+- Ingestion: Land raw JSON documents directly into a VARIANT column.
+- Navigation: Use colon-dot notation (`raw_event:customer.id::INT`).
+- Unnesting Arrays: Use `LATERAL FLATTEN(input => raw_event:items)`.
+  Converts an internal JSON array of items into multiple relational rows for standard 
+  SQL joins and aggregations.
+
+
+=============================================================================
+SECTION 4: DAY 29 - REAL-WORLD PATTERNS & PIPELINES (5.11 - 5.15)
+=============================================================================
+
+4.1 SEARCH OPTIMIZATION SERVICE (SOS)
+- Purpose: Accelerates point-lookup queries on massive (multi-billion row) tables.
+- Analogy: Like the index at the back of a 2,000-page medical encyclopedia. Without 
+  it, finding a single patient ID requires scanning hundreds of pages.
+- Methods: `EQUALITY` (point lookups), `SUBSTRING` (`LIKE '%value%'`), `GEO` (spatial), 
+  and `VARIANT` (paths inside JSON).
+
+
+4.2 STREAMS: NATIVE CHANGE DATA CAPTURE (CDC)
+A Stream is a lightweight change-tracking object created on a table:
+- It maintains an offset pointer into the source table's Time Travel change history.
+- Extra Virtual Columns Provided by Streams:
+  * `METADATA$ACTION`   : 'INSERT' or 'DELETE'
+  * `METADATA$ISUPDATE` : TRUE if part of an UPDATE operation, FALSE otherwise
+  * `METADATA$ROW_ID`   : Unique row hash to correlate before-and-after update records
+- Offset Consumption: Reading a stream (`SELECT * FROM my_stream`) does NOT advance 
+  the pointer. Only consuming it inside a successful DML statement (`INSERT`, `MERGE`) 
+  advances the offset!
+
+
+4.3 TASKS & TASK DAGS: ORCHESTRATION INSIDE SNOWFLAKE
+Tasks allow executing SQL statements or stored procedures on a schedule:
+- Scheduling: Supports fixed intervals (`SCHEDULE = '5 MINUTE'`) or CRON expressions 
+  (`SCHEDULE = 'USING CRON 0 2 * * * UTC'`).
+- DAG Dependencies: Child tasks specify `AFTER parent_task_name`, creating a tree 
+  of dependencies that execute sequentially or fan out in parallel.
+- The `WHEN` Clause:
+  `WHEN SYSTEM$STREAM_HAS_DATA('strm_orders')`
+  Evaluates before spinning up compute! If the stream is empty, the task skips 
+  execution without burning a single credit!
+
+
+4.4 USER-DEFINED FUNCTIONS (UDFS) VS STORED PROCEDURES
+Key Architectural Differences:
+
++--------------------+-----------------------------+-----------------------------+
+| Feature            | User-Defined Function (UDF) | Stored Procedure (SP)       |
++--------------------+-----------------------------+-----------------------------+
+| Purpose            | Calculate & return a value  | Execute workflow with logic |
+| Invocation         | Inline in SQL (`SELECT fn()`) | Standalone (`CALL sp()`)    |
+| Return Value       | Mandatory (Scalar or Table) | Optional                    |
+| DML & Side Effects | CANNOT perform DML (No writes)| Can run INSERT/UPDATE/MERGE |
+| Transactions       | Cannot manage transactions  | Can COMMIT or ROLLBACK      |
+| Languages          | SQL, JavaScript, Python     | Snowflake Scripting, Python |
++--------------------+-----------------------------+-----------------------------+
+
+
+4.5 PYTHON CONNECTOR VS SNOWPARK PYTHON
+- Snowflake Python Connector (`snowflake-connector-python`):
+  Standard DB-API 2.0 driver. Runs SQL text from Python and pulls rows over the 
+  network into local pandas DataFrames. Best for small result sets and dashboards.
+- Snowpark Python (`snowflake-snowpark-python`):
+  DataFrame API modeled on PySpark. Transformations (`.filter()`, `.group_by()`) 
+  are lazy. When executed, Snowpark translates the DataFrame operations into optimized 
+  SQL that executes ENTIRELY inside Snowflake's virtual warehouse. Data never moves 
+  over the network!
+
+
+================================================================================
+SECTION 5: DAY 30 - SNOWPARK ML, CORTEX GENAI & FINOPS (5.16 - 5.18)
+================================================================================
+
+5.1 SNOWPARK ML: MODELING & REGISTRY
+Snowpark ML collapses the traditional fragmented ML infrastructure:
+- Data Prep: `snowflake.ml.modeling.preprocessing` provides `StandardScaler`, 
+  `OneHotEncoder`, and `SimpleImputer` executing natively on distributed DataFrames.
+- Estimators: `XGBClassifier`, `RandomForestClassifier` train directly on data-at-rest.
+- Model Registry: Centralized catalog within Snowflake to log, version, tag, and 
+  alias models. Deployed models can be called directly in SQL via `MODEL!predict(*)`.
+
+
+5.2 CORTEX ML FUNCTIONS: READY-MADE ALGORITHMS
+Ready-to-use algorithms exposed as SQL commands without writing training code:
+1. `SNOWFLAKE.ML.FORECAST` : Machine-learning time-series forecasting.
+2. `SNOWFLAKE.ML.ANOMALY_DETECTION` : Contextual outlier detection on time-series.
+3. `SNOWFLAKE.ML.TOP_INSIGHTS` : Automated root-cause driver analysis.
+
+
+5.3 CORTEX LLM FUNCTIONS: GENERATIVE AI AS SQL
+Run state-of-the-art Large Language Models (Llama 3.1, Mistral, Claude) directly 
+via SQL functions with zero data egress and zero external API keys:
+- `SNOWFLAKE.CORTEX.COMPLETE()` : General text generation, system prompts, role arrays.
+- `SNOWFLAKE.CORTEX.SUMMARIZE()` : Condenses long paragraphs into executive briefs.
+- `SNOWFLAKE.CORTEX.SENTIMENT()` : Scores text sentiment from -1.0 (bad) to +1.0 (good).
+- `SNOWFLAKE.CORTEX.CLASSIFY_TEXT()` : Zero-shot multi-label classification.
+- `SNOWFLAKE.CORTEX.EXTRACT_ANSWER()` : Extractive Q&A over context passages.
+
+
+5.4 IN-DATABASE RETRIEVAL-AUGMENTED GENERATION (RAG)
+Build a complete enterprise AI knowledge assistant entirely within Snowflake:
+1. `VECTOR(FLOAT, N)` : Native data type storing dense embeddings.
+2. `SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', text)` : Computes 768-dim embeddings.
+3. `VECTOR_COSINE_SIMILARITY(emb1, emb2)` : Vector comparison in high-dimensional space.
+4. Complete RAG Loop:
+   User asks question -> Embed query -> Retrieve Top-K nearest chunks via cosine 
+   similarity -> Feed chunks + question into `CORTEX.COMPLETE` -> Return grounded answer!
+
+--------------------------------------------------------------------------------
+VISUAL WORKFLOW: COMPLETE IN-DATABASE CORTEX RAG PIPELINE
+--------------------------------------------------------------------------------
+
+  [Enterprise PDF / Policy Docs]
+                 |
+                 | 1. Stage file & Chunk via UDTF
+                 v
+  [Text Chunks: 500 tokens each]
+                 |
+                 | 2. SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', chunk_text)
+                 v
+  [Table: policy_chunks (chunk_text, embedding VECTOR(FLOAT, 768))]
+                 |
+                 +-----------------------------------------+
+                                                           |
+  [User Question: "How do I return a damaged item?"]       |
+                 |                                         |
+                 | 3. Embed Question                       | 4. VECTOR_COSINE_SIMILARITY
+                 v                                         v
+  [Question Vector: 768-dim] -----------------------> [Top-3 Nearest Chunks]
+                                                           |
+                                                           | 5. Pass as Grounded Context
+                                                           v
+                                            [SNOWFLAKE.CORTEX.COMPLETE]
+                                            (Model: 'llama3.1-70b')
+                                                           |
+                                                           | 6. Generates hallucination-free answer
+                                                           v
+                                            [Final Grounded Answer to User]
+
+
+5.5 ENTERPRISE COST OPTIMIZATION (FINOPS)
+Three Levers of Cost Governance:
+1. Virtual Warehouse Sizing:
+   Test queries across T-shirt sizes. If query time on Medium is 10s and on Large is 9s, 
+   the query does not scale linearly - keep it on Medium and save 50%!
+2. Resource Monitors:
+   Attach hard-cap credit quotas to warehouses: Notify at 75%, Suspend at 100%, 
+   and Suspend Immediately at 110%.
+3. Object Tagging for Chargeback:
+   Tag warehouses with `cost_center` ('analytics', 'finance', 'ml') and query 
+   `METERING_HISTORY` joined to `TAG_REFERENCES` to invoice internal departments.
+
+
+5.6 SNOWPRO CORE CERTIFICATION PREPARATION BLUEPRINT
+Exam Overview:
+- 100 Questions (Multiple choice, multi-select), 115 minutes, Passing score ~750/1000.
+- 6 Core Domains & Exam Weights:
+  1. Snowflake Architecture & Features (20% - 25%)
+  2. Data Loading & Unloading (20% - 25%)
+  3. Data Transformations (20% - 25%)
+  4. Performance Concepts (10% - 15%)
+  5. Security & Access Control (10% - 15%)
+  6. Data Protection & Lifecycle (10% - 15%)
+
+The 5 Most Common Exam Traps:
+1. Standard edition Time Travel is 1 day max. Enterprise is up to 90 days.
+2. Dropping a table moves it to Time Travel first, THEN Fail-Safe (7 days for Permanent).
+3. Transient and Temporary tables NEVER have Fail-Safe!
+4. Tasks are created in a `SUSPENDED` state by default; you must run `ALTER TASK ... RESUME`.
+5. Stored procedures run with Owner's Rights by default; UDFs cannot execute DML.
+
+
+================================================================================
+SECTION 6: DAY 31 - CAPSTONE PLATFORM VERIFICATION
+================================================================================
+
+The 20-part Mango Mart production architecture brings every concept together:
+1. Databases & Schemas: Multi-layer logical separation.
+2. RBAC Security: Functional roles rolling into persona roles with FUTURE grants.
+3. Decoupled Warehouses: ETL_WH (L), BI_WH (M multi-cluster), ML_WH (L).
+4. Continuous Ingestion: S3 -> SQS -> Snowpipe -> VARIANT landing table.
+5. CDC Stream: APPEND_ONLY stream capturing newly landed JSON events.
+6. Transformation SP: Snowflake Scripting procedure parsing JSON into typed facts.
+7. Orchestration DAG: Scheduled root task calling SP with stream-data guard.
+8. Performance: Explicit clustering on (store_key, date_key) + Search Optimization.
+9. Data Protection: Dynamic masking on email; 30-day Time Travel on facts.
+10. GenAI & ML: Cortex sentiment scoring, text classification, and in-database RAG.
+
+This completes the Week 6 Snowflake, SnowSQL & Cortex Master Curriculum.
+================================================================================
