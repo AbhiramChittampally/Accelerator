@@ -17,14 +17,14 @@ __pycache__/
 .ipynb_checkpoints/
 
 # OS files
+# OS files
 .DS_Store
-Thumbs.dbgit filter-repo --version
+Thumbs.db
 
 # Large downloaded learning files
 *.exe
 *.html
 
-Machine Learning_DeepLearning\__pycache__
-
-
-Machine Learning_DeepLearning\catboost_info
+# Machine Learning generated files
+Machine Learning_DeepLearning/__pycache__/
+Machine Learning_DeepLearning/catboost_info/
