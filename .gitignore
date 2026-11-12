@@ -25,6 +25,13 @@ Thumbs.db
 *.exe
 *.html
 
+
+
+
 # Machine Learning generated files
 Machine Learning_DeepLearning/__pycache__/
 Machine Learning_DeepLearning/catboost_info/
+# Pytest and coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
