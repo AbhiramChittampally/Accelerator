@@ -1,11 +1,32 @@
+# def fetch_exchange_rate_from_api(currency):
+#     """
+#     Simulates fetching exchange rate from an external API.
+#     """
+#     print(f"Calling external API for {currency}")
 
-def fetch_exchange_rate_from_api(currency):
+#     rates = {
+#         "USD": 83.0,
+#         "EUR": 90.0,
+#     }
+
+#     return rates.get(currency)
+
+
+# def get_exchange_rate(currency):
+#     rate = fetch_exchange_rate_from_api(currency)
+
+#     if rate is None:
+#         raise ValueError("Unsupported currency")
+
+
+#     return rate
+def fetch_exchange_rate_from_api(currency: str) -> float | None:
     """
     Simulates fetching exchange rate from an external API.
     """
     print(f"Calling external API for {currency}")
 
-    rates = {
+    rates: dict[str, float] = {
         "USD": 83.0,
         "EUR": 90.0,
     }
@@ -13,7 +34,7 @@ def fetch_exchange_rate_from_api(currency):
     return rates.get(currency)
 
 
-def get_exchange_rate(currency):
+def get_exchange_rate(currency: str) -> float:
     rate = fetch_exchange_rate_from_api(currency)
 
     if rate is None:
