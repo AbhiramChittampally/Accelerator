@@ -1,4 +1,3 @@
-
 import pytest
 
 from src.bank import withdraw
@@ -13,6 +12,7 @@ def account_balance():
 def test_basic_account_withdrawal():
     assert withdraw(1000, 100) == 900
 
+
 @pytest.mark.parametrize(
     "balance, amount, expected",
     [
@@ -21,7 +21,7 @@ def test_basic_account_withdrawal():
         (500, 100, 400),
         (2000, 500, 1500),
         (1000, 1000, 0),
-    ]
+    ],
 )
 def test_successful_withdrawal(balance, amount, expected):
     assert withdraw(balance, amount) == expected
@@ -42,10 +42,6 @@ def test_negative_withdrawal(account_balance):
         withdraw(account_balance, -200)
 
 
-
-
-
-
 @pytest.mark.skip(reason="Feature temporarily disabled")
 def test_international_withdrawal():
     assert withdraw(1000, 100) == 900
@@ -53,7 +49,7 @@ def test_international_withdrawal():
 
 @pytest.mark.skipif(
     __import__("sys").platform == "win32",
-    reason="This test is intended for non-Windows systems"
+    reason="This test is intended for non-Windows systems",
 )
 def test_linux_specific_behavior():
     assert withdraw(1000, 100) == 900

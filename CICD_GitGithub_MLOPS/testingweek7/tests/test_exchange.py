@@ -1,17 +1,15 @@
-
-import pytest
 from unittest.mock import patch
 
+import pytest
+
 from src.exchange import (
-    get_exchange_rate,
     fetch_exchange_rate_from_api,
+    get_exchange_rate,
 )
 
 
 def test_get_exchange_rate():
-    with patch(
-        "src.exchange.fetch_exchange_rate_from_api"
-    ) as mock_api:
+    with patch("src.exchange.fetch_exchange_rate_from_api") as mock_api:
 
         mock_api.return_value = 85.0
 
@@ -22,9 +20,7 @@ def test_get_exchange_rate():
 
 
 def test_unsupported_currency():
-    with patch(
-        "src.exchange.fetch_exchange_rate_from_api"
-    ) as mock_api:
+    with patch("src.exchange.fetch_exchange_rate_from_api") as mock_api:
 
         mock_api.return_value = None
 
