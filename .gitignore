@@ -48,3 +48,9 @@ CICD_GitGithub_MLOPS/testingweek7/mlflow_lab/artifacts/
 # Week 7 generated build and deployment output
 CICD_GitGithub_MLOPS/testingweek7/dist/
 CICD_GitGithub_MLOPS/testingweek7/deployments/
+# FDE Node.js dependencies and generated files
+FDE/**/node_modules/
+FDE/**/dist/
+FDE/**/build/
+
+# Executables are already globally ignored by *.exe
