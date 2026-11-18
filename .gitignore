@@ -25,6 +25,32 @@ Thumbs.db
 *.exe
 *.html
 
+
+
+
 # Machine Learning generated files
 Machine Learning_DeepLearning/__pycache__/
 Machine Learning_DeepLearning/catboost_info/
+# Pytest and coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+dvc-storage/
+
+
+
+# Week 7 MLflow generated state
+CICD_GitGithub_MLOPS/testingweek7/mlflow.db
+CICD_GitGithub_MLOPS/testingweek7/mlruns/
+CICD_GitGithub_MLOPS/testingweek7/mlflow_lab/artifacts/
+
+# Week 7 generated build and deployment output
+CICD_GitGithub_MLOPS/testingweek7/dist/
+CICD_GitGithub_MLOPS/testingweek7/deployments/
+# FDE Node.js dependencies and generated files
+FDE/**/node_modules/
+FDE/**/dist/
+FDE/**/build/
+
+# Executables are already globally ignored by *.exe

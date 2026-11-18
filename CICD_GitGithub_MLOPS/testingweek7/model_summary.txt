@@ -1,0 +1,6 @@
+Dataset: data\training.csv
+Dataset rows: 7
+Learning rate: 0.02
+Epochs: 100
+Learned weight: 2.0
+MSE: 0.0
