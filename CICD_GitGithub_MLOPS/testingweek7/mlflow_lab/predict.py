@@ -1,15 +1,25 @@
 import mlflow
 import pandas as pd
 
-mlflow.set_tracking_uri("sqlite:///mlflow.db")
+TRACKING_URI = "sqlite:///mlflow.db"
+MODEL_URI = "models:/Week7LinearRegression@production"
 
-model_uri = "models:/Week7LinearRegression@champion"
 
-model = mlflow.pyfunc.load_model(model_uri)
+def main():
+    mlflow.set_tracking_uri(TRACKING_URI)
 
-input_data = pd.DataFrame({"x": [6, 7, 8, 9, 10]})
+    print("Loading production model...")
+    model = mlflow.pyfunc.load_model(MODEL_URI)
 
-predictions = model.predict(input_data)
+    input_data = pd.DataFrame({"x": [6.0, 7.0, 8.0, 9.0, 10.0]})
 
-for x, prediction in zip(input_data["x"], predictions):
-    print(f"Input: {x}, Prediction: {prediction}")
+    predictions = model.predict(input_data)
+
+    print("\nPRODUCTION MODEL PREDICTIONS")
+
+    for x, prediction in zip(input_data["x"], predictions):
+        print(f"Input: {x}, Prediction: {prediction}")
+
+
+if __name__ == "__main__":
+    main()

@@ -37,3 +37,14 @@ Machine Learning_DeepLearning/catboost_info/
 htmlcov/
 
 dvc-storage/
+
+
+
+# Week 7 MLflow generated state
+CICD_GitGithub_MLOPS/testingweek7/mlflow.db
+CICD_GitGithub_MLOPS/testingweek7/mlruns/
+CICD_GitGithub_MLOPS/testingweek7/mlflow_lab/artifacts/
+
+# Week 7 generated build and deployment output
+CICD_GitGithub_MLOPS/testingweek7/dist/
+CICD_GitGithub_MLOPS/testingweek7/deployments/
